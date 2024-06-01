@@ -9,8 +9,8 @@ if (!isset($_SESSION['username'])) {
 
 include 'db.php'; // Include db.php to get $pdo connection
 
-// Fetch tenants data with associated room details
-$stmt = $pdo->query("SELECT tenants.*, rooms.name AS room_name, rooms.rent FROM tenants LEFT JOIN rooms ON tenants.room_id = rooms.id");
+// Fetch tenants data with selected columns only
+$stmt = $pdo->query("SELECT tenants.id, tenants.last_name, tenants.first_name, tenants.middle_name, rooms.name AS room_name FROM tenants LEFT JOIN rooms ON tenants.room_id = rooms.id");
 $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -25,36 +25,6 @@ $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <style>
         .main-content {
             padding: 20px; /* Adjust padding as needed */
-        }
-
-        .overview {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-        }
-
-        .overview-item {
-            flex: 1;
-            text-align: center;
-            background-color: #f2f2f2;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .overview-item i {
-            font-size: 36px;
-            margin-bottom: 10px;
-        }
-
-        .overview-item p {
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .overview-item span {
-            font-size: 24px;
-            font-weight: normal;
         }
 
         table {
@@ -188,29 +158,23 @@ $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Move-in Date</th>
-                    <th>Room</th>
-                    <th>Rent</th>
+                    <th>#</th>
+                    <th>Last Name</th>
+                    <th>First Name</th>
+                    <th>Middle Name</th>
+                    <th>Room Type</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($tenants as $tenant): ?>
+                <?php foreach ($tenants as $index => $tenant): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($tenant['id']); ?></td>
-                        <td><?php echo htmlspecialchars($tenant['name']); ?></td>
-                        <td><?php echo htmlspecialchars($tenant['email']); ?></td>
-                        <td><?php echo htmlspecialchars($tenant['phone']); ?></td>
-                        <td><?php echo htmlspecialchars($tenant['move_in_date']); ?></td>
+                        <td><?php echo $index + 1; ?></td>
+                        <td><?php echo htmlspecialchars($tenant['last_name']); ?></td>
+                        <td><?php echo htmlspecialchars($tenant['first_name']); ?></td>
+                        <td><?php echo htmlspecialchars($tenant['middle_name']); ?></td>
                         <td><?php echo htmlspecialchars($tenant['room_name']); ?></td>
-                        <td>$<?php echo htmlspecialchars($tenant['rent']); ?></td>
                         <td>
-                            <a href="edit_tenant.php?id=<?php echo $tenant['id']; ?>" class="button">Edit</a>
-                            <a href="?delete=<?php echo $tenant['id']; ?>" class="button delete-button">Delete</a>
                             <a href="view_tenant.php?id=<?php echo $tenant['id']; ?>" class="button">View</a>
                         </td>
                     </tr>

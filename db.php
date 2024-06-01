@@ -11,6 +11,7 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 } catch (PDOException $e) {
+    // Display error message and terminate script execution on connection failure
     die("Database connection failed: " . $e->getMessage());
 }
 ?>
