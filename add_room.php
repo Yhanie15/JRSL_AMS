@@ -11,19 +11,19 @@ include 'db.php'; // Include db.php to get $pdo connection
 
 // Handle form submission to add a new room
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = $_POST['name'];
     $rent = $_POST['rent'];
+    $unit_number = $_POST['unit_number']; // New field
+    $capacity = $_POST['capacity']; // New field
 
     // Insert new room into the database
-    $stmt = $pdo->prepare("INSERT INTO rooms (name, rent) VALUES (?, ?)");
-    $stmt->execute([$name, $rent]);
+    $stmt = $pdo->prepare("INSERT INTO rooms (rent, unit_number, capacity) VALUES (?, ?, ?)");
+    $stmt->execute([$rent, $unit_number, $capacity]);
 
     // Redirect to the view rooms page after successful insertion
     header("Location: view_rooms.php");
     exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -140,6 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <li><a href="dashboard.php">Dashboard</a></li>
             <li><a href="view_tenants.php">View Tenants</a></li>
             <li><a href="view_rooms.php">View Rooms</a></li>
+            <li><a href="bills_payment.php">Bills & Payment</a></li>
             <li><a href="reports.php">Reports</a></li>
             <li><a href="login/logout.php">Logout</a></li>
         </ul>
@@ -151,12 +152,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <h2>Add New Room</h2>
             <form action="add_room.php" method="POST">
                 <div class="form-group">
-                    <label for="name">Room Name:</label>
-                    <input type="text" id="name" name="name" required>
-                </div>
-                <div class="form-group">
                     <label for="rent">Rent:</label>
                     <input type="number" id="rent" name="rent" required>
+                </div>
+                <div class="form-group">
+                    <label for="unit_number">Unit Number:</label>
+                    <input type="text" id="unit_number" name="unit_number" required>
+                </div>
+                <div class="form-group">
+                    <label for="capacity">Capacity:</label>
+                    <input type="number" id="capacity" name="capacity" required>
                 </div>
                 <div class="form-group">
                     <input type="submit" value="Add Room">

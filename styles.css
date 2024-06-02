@@ -107,7 +107,7 @@ body {
 
 .main-content {
     flex-grow: 1;
-    padding: 260px;
+    padding: 20px;
     background-color: rgba(240, 240, 240, 0.7);
 }
 

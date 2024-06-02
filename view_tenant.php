@@ -18,9 +18,9 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 $tenant_id = $_GET['id'];
 
 // Fetch tenant data with associated room details
-$stmt = $pdo->prepare("SELECT tenants.*, rooms.name AS room_name, rooms.rent 
+$stmt = $pdo->prepare("SELECT tenants.*, rooms.unit_number, rooms.rent 
                        FROM tenants 
-                       LEFT JOIN rooms ON tenants.room_id = rooms.id 
+                       LEFT JOIN rooms ON tenants.unit_number = rooms.unit_number 
                        WHERE tenants.id = ?");
 $stmt->execute([$tenant_id]);
 $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -30,12 +30,7 @@ if (!$tenant) {
     header("Location: view_tenants.php");
     exit();
 }
-
-// Fetch rooms from the database
-$rooms_stmt = $pdo->query("SELECT id, name FROM rooms");
-$rooms = $rooms_stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -155,6 +150,7 @@ $rooms = $rooms_stmt->fetchAll(PDO::FETCH_ASSOC);
             <li><a href="dashboard.php">Dashboard</a></li>
             <li><a href="view_tenants.php">View Tenants</a></li>
             <li><a href="view_rooms.php">View Rooms</a></li>
+            <li><a href="bills_payment.php">Bills & Payment</a></li>
             <li><a href="reports.php">Reports</a></li>
             <li><a href="login/logout.php">Logout</a></li>
         </ul>
@@ -171,7 +167,7 @@ $rooms = $rooms_stmt->fetchAll(PDO::FETCH_ASSOC);
             <p><strong>Email:</strong> <?php echo htmlspecialchars($tenant['email']); ?></p>
             <p><strong>Phone:</strong> <?php echo htmlspecialchars($tenant['phone']); ?></p>
             <p><strong>Move-in Date:</strong> <?php echo htmlspecialchars($tenant['move_in_date']); ?></p>
-            <p><strong>Room:</strong> <?php echo htmlspecialchars($tenant['room_name']); ?></p>
+            <p><strong>Unit Number:</strong> <?php echo htmlspecialchars($tenant['unit_number']); ?></p>
             <p><strong>Rent:</strong> $<?php echo htmlspecialchars($tenant['rent']); ?></p>
             <p><strong>Gender:</strong> <?php echo htmlspecialchars($tenant['gender']); ?></p>
             <p><strong>Address:</strong><br> <?php echo htmlspecialchars($tenant['address']); ?></p>
@@ -194,4 +190,3 @@ $rooms = $rooms_stmt->fetchAll(PDO::FETCH_ASSOC);
 
 </body>
 </html>
-

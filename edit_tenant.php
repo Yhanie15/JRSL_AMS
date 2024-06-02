@@ -18,7 +18,10 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 $tenant_id = $_GET['id'];
 
 // Fetch tenant data with associated room details
-$stmt = $pdo->prepare("SELECT * FROM tenants WHERE id = ?");
+$stmt = $pdo->prepare("SELECT tenants.*, rooms.unit_number, rooms.name AS room_name 
+                       FROM tenants 
+                       LEFT JOIN rooms ON tenants.room_id = rooms.id 
+                       WHERE tenants.id = ?");
 $stmt->execute([$tenant_id]);
 $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -52,11 +55,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
 }
 
-// Fetch room list for dropdown
-$stmt = $pdo->query("SELECT id, name FROM rooms");
+// Fetch room list for dropdown, including current tenant count and capacity
+$stmt = $pdo->query("SELECT r.id, r.name, r.unit_number, r.capacity, COUNT(t.room_id) AS current_tenants
+                     FROM rooms r
+                     LEFT JOIN tenants t ON r.id = t.room_id
+                     GROUP BY r.id");
 $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -193,6 +198,7 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <li><a href="dashboard.php">Dashboard</a></li>
             <li><a href="view_tenants.php">View Tenants</a></li>
             <li><a href="view_rooms.php">View Rooms</a></li>
+            <li><a href="bills_payment.php">Bills & Payment</a></li>
             <li><a href="reports.php">Reports</a></li>
             <li><a href="login/logout.php">Logout</a></li>
         </ul>
@@ -231,14 +237,26 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <label for="room_id">Room:</label>
                     <select id="room_id" name="room_id" required>
                         <?php foreach ($rooms as $room): ?>
-                            <option value="<?php echo $room['id']; ?>" <?php echo ($room['id'] == $tenant['room_id']) ? 'selected' : ''; ?>>
-                                <?php echo htmlspecialchars($room['name']); ?>
-                            </option>
+                            <?php 
+                                // Calculate remaining capacity
+                               
+                                $remaining_capacity = $room['capacity'] - $room['current_tenants'];
+
+                                // Display only if the remaining capacity is more than 0
+                                if ($remaining_capacity > 0) :
+                            ?>
+                                <option value="<?php echo $room['id']; ?>"
+                                    <?php echo ($room['id'] == $tenant['room_id']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($room['name'] . ' - Unit ' . $room['unit_number']); ?>
+                                </option>
+                            <?php 
+                                endif; // End of check for remaining capacity
+                            ?>
                         <?php endforeach; ?>
                     </select>
                 </div>
                 <div class="form-group">
-                <label for="gender">Gender:</label>
+                    <label for="gender">Gender:</label>
                     <select id="gender" name="gender" required>
                         <option value="Male" <?php echo ($tenant['gender'] == 'Male') ? 'selected' : ''; ?>>Male</option>
                         <option value="Female" <?php echo ($tenant['gender'] == 'Female') ? 'selected' : ''; ?>>Female</option>

@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
     $phone = $_POST['phone'];
     $move_in_date = $_POST['move_in_date'];
-    $room_id = $_POST['room_id'];
+    $unit_number = $_POST['unit_number'];
     $gender = $_POST['gender'];
     $address = $_POST['address'];
     $birthday = $_POST['birthday'];
@@ -26,8 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Insert new tenant into the database
-        $stmt = $pdo->prepare("INSERT INTO tenants (last_name, first_name, middle_name, email, phone, move_in_date, room_id, gender, address, birthday, emergency_name, emergency_contact_number) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$last_name, $first_name, $middle_name, $email, $phone, $move_in_date, $room_id, $gender, $address, $birthday, $emergency_name, $emergency_contact_number]);
+        $stmt = $pdo->prepare("INSERT INTO tenants (last_name, first_name, middle_name, email, phone, move_in_date, unit_number, gender, address, birthday, emergency_name, emergency_contact_number) 
+                              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$last_name, $first_name, $middle_name, $email, $phone, $move_in_date, $unit_number, $gender, $address, $birthday, $emergency_name, $emergency_contact_number]);
 
         header("Location: view_tenants.php");
         exit();
@@ -154,6 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <li><a href="dashboard.php">Dashboard</a></li>
             <li><a href="view_tenants.php">View Tenants</a></li>
             <li><a href="view_rooms.php">View Rooms</a></li>
+            <li><a href="bills_payment.php">Bills & Payment</a></li>
             <li><a href="reports.php">Reports</a></li>
             <li><a href="login/logout.php">Logout</a></li>
         </ul>
@@ -189,17 +191,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="date" id="move_in_date" name="move_in_date" required>
                 </div>
                 <div class="form-group">
-                    <label for="room_id">Room:</label>
-                    <select id="room_id" name="room_id" required>
+                    <label for="unit_number">Unit Number:</label>
+                    <select id="unit_number" name="unit_number" required>
                         <?php
-                        include 'db.php'; // Include db.php to get $pdo connection
-
-                        // Fetch rooms from the database
-                        $stmt = $pdo->query("SELECT id, name FROM rooms");
+                        // Fetch units from the database
+                        $stmt = $pdo->query("SELECT id, unit_number, capacity FROM rooms");
                         $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
                         foreach ($rooms as $room) {
-                            echo "<option value='" . $room['id'] . "'>" . htmlspecialchars($room['name']) . "</option>";
+                            // Check the current occupancy of each unit
+                            $stmt = $pdo->prepare("SELECT COUNT(*) FROM tenants WHERE unit_number = ?");
+                            $stmt->execute([$room['unit_number']]);
+                            $current_occupancy = $stmt->fetchColumn();
+
+                            // Only display the unit if it hasn't reached maximum capacity
+                            if ($current_occupancy < $room['capacity']) {
+                                echo "<option value='" . htmlspecialchars($room['unit_number']) . "'>" . htmlspecialchars($room['unit_number']) . "</option>";
+                            }
                         }
                         ?>
                     </select>

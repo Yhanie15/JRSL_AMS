@@ -10,7 +10,7 @@ if (!isset($_SESSION['username'])) {
 include 'db.php'; // Include db.php to get $pdo connection
 
 // Fetch tenants data with selected columns only
-$stmt = $pdo->query("SELECT tenants.id, tenants.last_name, tenants.first_name, tenants.middle_name, rooms.name AS room_name FROM tenants LEFT JOIN rooms ON tenants.room_id = rooms.id");
+$stmt = $pdo->query("SELECT id, last_name, first_name, middle_name, unit_number FROM tenants");
 $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -142,6 +142,7 @@ $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <li><a href="dashboard.php">Dashboard</a></li>
             <li><a href="view_tenants.php" class="active">View Tenants</a></li>
             <li><a href="view_rooms.php">View Rooms</a></li>
+            <li><a href="bills_payment.php">Bills & Payment</a></li>
             <li><a href="reports.php">Reports</a></li>
             <li><a href="login/logout.php">Logout</a></li>
         </ul>
@@ -162,7 +163,7 @@ $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <th>Last Name</th>
                     <th>First Name</th>
                     <th>Middle Name</th>
-                    <th>Room Type</th>
+                    <th>Unit Number</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -173,7 +174,7 @@ $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <td><?php echo htmlspecialchars($tenant['last_name']); ?></td>
                         <td><?php echo htmlspecialchars($tenant['first_name']); ?></td>
                         <td><?php echo htmlspecialchars($tenant['middle_name']); ?></td>
-                        <td><?php echo htmlspecialchars($tenant['room_name']); ?></td>
+                        <td><?php echo htmlspecialchars($tenant['unit_number']); ?></td>
                         <td>
                             <a href="view_tenant.php?id=<?php echo $tenant['id']; ?>" class="button">View</a>
                         </td>
