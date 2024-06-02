@@ -11,17 +11,65 @@ include 'db.php'; // Include db.php to get $pdo connection
 
 // Function to get the status of rent payment
 function getRentStatus($pdo, $unit_number, $due_date) {
-    $stmt = $pdo->prepare("SELECT payment_date FROM rent_payments WHERE unit_number = ? AND payment_date <= ?");
-    $stmt->execute([$unit_number, $due_date]);
-    $payment = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $payment ? 'Paid' : 'Unpaid';
+    try {
+        // Check if rent_payments table exists
+        $table_check = $pdo->query("SELECT 1 FROM rent_payments LIMIT 1");
+        if ($table_check === false) {
+            // Table does not exist, return 'Unpaid' by default
+            return 'Unpaid';
+        }
+
+        // Prepare the SQL query to get payment status
+        $stmt = $pdo->prepare("SELECT payment_date FROM rent_payments WHERE unit_number = ? AND payment_date <= ?");
+        $stmt->execute([$unit_number, $due_date]);
+        $payment = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $payment ? 'Paid' : 'Unpaid';
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+    }
+}
+
+// If bills are calculated, save them to the database
+if (isset($_SESSION['bills'])) {
+    $bills = $_SESSION['bills'];
+    try {
+        // Check if bills table exists, if not create it
+        $stmt = $pdo->query("SELECT 1 FROM bills LIMIT 1");
+        if ($stmt === false) {
+            $pdo->query("
+                CREATE TABLE bills (
+                    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+                    unit_number VARCHAR(50) NOT NULL,
+                    electricity_bill DECIMAL(10,2),
+                    water_bill DECIMAL(10,2),
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ");
+        }
+
+        // Insert or update bills for the unit
+        $stmt = $pdo->prepare("
+            INSERT INTO bills (unit_number, electricity_bill, water_bill)
+            VALUES (?, ?, ?)
+            ON DUPLICATE KEY UPDATE
+            electricity_bill = VALUES(electricity_bill),
+            water_bill = VALUES(water_bill)
+        ");
+        $stmt->execute([$bills['unit_number'], $bills['total_electricity_bill'], $bills['total_water_bill']]);
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+    }
+
+    // Unset the session variable after saving to database
+    unset($_SESSION['bills']);
 }
 
 // Fetch room data with bills and tenants
 $stmt = $pdo->query("
-    SELECT rooms.id, rooms.unit_number, rooms.rent, 
-           COALESCE(SUM(bills.water_bill + bills.electricity_bill), 0) AS total_bills,
-           MAX(tenants.move_in_date) AS move_in_date
+    SELECT rooms.id, rooms.unit_number, rooms.rent,
+    COALESCE(SUM(bills.water_bill + bills.electricity_bill), 0) AS total_bills,
+    MAX(tenants.move_in_date) AS move_in_date
     FROM rooms
     LEFT JOIN bills ON rooms.unit_number = bills.unit_number
     LEFT JOIN tenants ON rooms.unit_number = tenants.unit_number
@@ -31,7 +79,7 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $currentDate = date('Y-m-d');
 ?>
-
+    
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -85,6 +133,7 @@ $currentDate = date('Y-m-d');
             text-decoration: none;
             color: #333;
             border-radius: 3px;
+            display: inline-block;
         }
 
         .back-button:hover {
@@ -183,12 +232,13 @@ $currentDate = date('Y-m-d');
                     $due_date = date('Y-m-d', strtotime($room['move_in_date'] . ' + 1 month'));
                     $status = getRentStatus($pdo, $room['unit_number'], $due_date);
                     $due_date_display = htmlspecialchars($due_date) . ' (' . htmlspecialchars($status) . ')';
+                    $total_bills = $room['total_bills'];
                 ?>
                     <tr>
                         <td><?php echo htmlspecialchars($room['unit_number']); ?></td>
                         <td>$<?php echo htmlspecialchars($room['rent']); ?></td>
                         <td><?php echo $due_date_display; ?></td>
-                        <td>$<?php echo htmlspecialchars($room['total_bills']); ?></td>
+                        <td>$<?php echo htmlspecialchars($total_bills); ?></td>
                         <td>
                             <a href="view_unit_details.php?id=<?php echo $room['id']; ?>" class="button">View</a>
                         </td>
@@ -196,6 +246,9 @@ $currentDate = date('Y-m-d');
                 <?php endforeach; ?>
             </tbody>
         </table>
+
+        <!-- Back button -->
+        <a href="dashboard.php" class="back-button">Back to Dashboard</a>
     </div>
 
     <script>
@@ -223,3 +276,4 @@ $currentDate = date('Y-m-d');
     </script>
 </body>
 </html>
+
