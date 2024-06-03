@@ -30,6 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         $stmt->execute([$last_name, $first_name, $middle_name, $email, $phone, $move_in_date, $unit_number, $gender, $address, $birthday, $emergency_name, $emergency_contact_number]);
 
+        // Resetting bills and payments associated with the unit number
+        $stmt = $pdo->prepare("UPDATE bills SET electricity_bill = 0, water_bill = 0, due_date_rent = NULL, due_date_bills = NULL WHERE unit_number = ?");
+        $stmt->execute([$unit_number]);
+
         header("Location: view_tenants.php");
         exit();
     } catch (PDOException $e) {

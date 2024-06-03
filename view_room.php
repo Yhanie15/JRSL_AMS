@@ -1,4 +1,5 @@
 <?php
+//DETAILS PER ROOM
 session_start();
 
 // Check if the user is logged in, if not redirect to login page
@@ -29,28 +30,6 @@ $room = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$room) {
     header("Location: view_rooms.php");
     exit();
-}
-
-// Handle delete tenant request
-if (isset($_GET['delete']) && !empty($_GET['delete'])) {
-    $deleteId = $_GET['delete'];
-
-    // Check if it's a room delete request or tenant delete request
-    if ($deleteId == $room_id) {
-        // Delete room and associated tenants
-        $stmt = $pdo->prepare("DELETE FROM rooms WHERE id = ?");
-        $stmt->execute([$deleteId]);
-        // Redirect to rooms list after deletion
-        header("Location: view_rooms.php");
-        exit();
-    } else {
-        // Delete tenant from the database
-        $stmt = $pdo->prepare("DELETE FROM tenants WHERE id = ?");
-        $stmt->execute([$deleteId]);
-        // Redirect to this page after deletion
-        header("Location: view_room.php?id=$room_id");
-        exit();
-    }
 }
 ?>
 
@@ -214,7 +193,6 @@ if (isset($_GET['delete']) && !empty($_GET['delete'])) {
             <p><strong>Rent:</strong> $<?php echo htmlspecialchars($room['rent']); ?></p>
             <p><strong>Capacity:</strong> <?php echo htmlspecialchars($room['capacity']); ?></p>
             <a href="edit_room.php?id=<?php echo $room['id']; ?>" class="button edit-button">Edit Room</a>
-            <a href="#" class="button delete-button" onclick="confirmDelete(<?php echo $room['id']; ?>)">Delete Room</a>
             <a href="view_rooms.php" class="back-button">Back to Rooms List</a>
         </div>
 
@@ -237,8 +215,7 @@ if (isset($_GET['delete']) && !empty($_GET['delete'])) {
                                 <td><?php echo htmlspecialchars($room['first_name'] . ' ' . $room['last_name']); ?></td>
                                 <td><?php echo htmlspecialchars($room['phone']); ?></td>
                                 <td>
-                                    <a href="edit_tenant.php?id=<?php echo $room['tenant_id']; ?>" class="button">Edit Tenant</a>
-                                    <a href="#" class="button delete-button" onclick="confirmDelete(<?php echo $room['tenant_id']; ?>)">Delete Tenant</a>
+                                   <a href="edit_tenant.php?id=<?php echo $room['tenant_id']; ?>" class="button">Edit Tenant</a>
                                 </td>
                             </tr>
                         <?php } while ($room = $stmt->fetch(PDO::FETCH_ASSOC)); ?>
@@ -249,13 +226,6 @@ if (isset($_GET['delete']) && !empty($_GET['delete'])) {
 
     </div>
 
-    <script>
-        function confirmDelete(id) {
-            if (confirm("Are you sure you want to delete this?")) {
-                window.location.href = `view_room.php?delete=${id}`;
-            }
-        }
-    </script>
 
 </body>
 </html>

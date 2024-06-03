@@ -18,9 +18,9 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 $tenant_id = $_GET['id'];
 
 // Fetch tenant data with associated room details
-$stmt = $pdo->prepare("SELECT tenants.*, rooms.unit_number, rooms.name AS room_name 
+$stmt = $pdo->prepare("SELECT tenants.*, rooms.unit_number AS room_name 
                        FROM tenants 
-                       LEFT JOIN rooms ON tenants.room_id = rooms.id 
+                       LEFT JOIN rooms ON tenants.unit_number = rooms.id 
                        WHERE tenants.id = ?");
 $stmt->execute([$tenant_id]);
 $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = $_POST['email'];
     $phone = $_POST['phone'];
     $move_in_date = $_POST['move_in_date'];
-    $room_id = $_POST['room_id'];
+    $unit_number = $_POST['unit_number'];
     $gender = $_POST['gender'];
     $address = $_POST['address'];
     $birthday = $_POST['birthday'];
@@ -47,8 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $emergency_contact_number = $_POST['emergency_contact_number'];
 
     // Update tenant information
-    $stmt = $pdo->prepare("UPDATE tenants SET last_name = ?, first_name = ?, middle_name = ?, email = ?, phone = ?, move_in_date = ?, room_id = ?, gender = ?, address = ?, birthday = ?, emergency_name = ?, emergency_contact_number = ? WHERE id = ?");
-    $stmt->execute([$surname, $first_name, $middle_name, $email, $phone, $move_in_date, $room_id, $gender, $address, $birthday, $emergency_name, $emergency_contact_number, $tenant_id]);
+    $stmt = $pdo->prepare("UPDATE tenants SET last_name = ?, first_name = ?, middle_name = ?, email = ?, phone = ?, move_in_date = ?, unit_number = ?, gender = ?, address = ?, birthday = ?, emergency_name = ?, emergency_contact_number = ? WHERE id = ?");
+    $stmt->execute([$surname, $first_name, $middle_name, $email, $phone, $move_in_date, $unit_number, $gender, $address, $birthday, $emergency_name, $emergency_contact_number, $tenant_id]);
 
     // Redirect to view tenant page
     header("Location: view_tenant.php?id=" . $tenant_id);
@@ -56,9 +56,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Fetch room list for dropdown, including current tenant count and capacity
-$stmt = $pdo->query("SELECT r.id, r.name, r.unit_number, r.capacity, COUNT(t.room_id) AS current_tenants
+$stmt = $pdo->query("SELECT r.id, r.unit_number, r.capacity, COUNT(t.unit_number) AS current_tenants
                      FROM rooms r
-                     LEFT JOIN tenants t ON r.id = t.room_id
+                     LEFT JOIN tenants t ON r.id = t.unit_number
                      GROUP BY r.id");
 $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -235,8 +235,8 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <input type="date" id="move_in_date" name="move_in_date" value="<?php echo htmlspecialchars($tenant['move_in_date']); ?>" required>
                 </div>
                 <div class="form-group">
-                    <label for="room_id">Room:</label>
-                    <select id="room_id" name="room_id" required>
+                    <label for="unit_number">Room:</label>
+                    <select id="unit_number" name="unit_number" required>
                         <?php foreach ($rooms as $room): ?>
                             <?php 
                                 // Calculate remaining capacity
@@ -247,8 +247,8 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 if ($remaining_capacity > 0) :
                             ?>
                                 <option value="<?php echo $room['id']; ?>"
-                                    <?php echo ($room['id'] == $tenant['room_id']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($room['name'] . ' - Unit ' . $room['unit_number']); ?>
+                                    <?php echo ($room['id'] == $tenant['unit_number']) ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($room['unit_number'] ); ?>
                                 </option>
                             <?php 
                                 endif; // End of check for remaining capacity

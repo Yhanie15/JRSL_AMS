@@ -1,4 +1,5 @@
 <?php
+//LIST OF ROOMS
 session_start();
 
 // Check if the user is logged in, if not redirect to login page
@@ -13,18 +14,6 @@ include 'db.php'; // Include db.php to get $pdo connection
 $stmt = $pdo->query("SELECT id, unit_number, rent, capacity FROM rooms");
 $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Handle delete room request
-if (isset($_GET['delete']) && !empty($_GET['delete'])) {
-    $deleteId = $_GET['delete'];
-
-    // Delete room from the database
-    $stmt = $pdo->prepare("DELETE FROM rooms WHERE id = ?");
-    $stmt->execute([$deleteId]);
-
-    // Redirect to this page after deletion
-    header("Location: view_rooms.php");
-    exit();
-}
 ?>
 
 <!DOCTYPE html>
@@ -196,6 +185,7 @@ if (isset($_GET['delete']) && !empty($_GET['delete'])) {
                         <td><?php echo htmlspecialchars($room['capacity']); ?></td>
                         <td>
                             <a href="view_room.php?id=<?php echo $room['id']; ?>" class="button view-button">View</a>
+                            <button class="button delete-button" onclick="confirmDelete(<?php echo $room['id']; ?>)">Delete</button>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -204,5 +194,12 @@ if (isset($_GET['delete']) && !empty($_GET['delete'])) {
 
         <a href="dashboard.php" class="back-button">Back to Dashboard</a>
     </div>
+    <script>
+        function confirmDelete(id) {
+            if (confirm("Are you sure you want to delete this room?")) {
+                window.location.href = `delete_room.php?id=${id}`;
+            }
+        }
+    </script>
 </body>
 </html>
