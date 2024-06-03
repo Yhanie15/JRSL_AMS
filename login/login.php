@@ -59,20 +59,23 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login</title>
+    <title>Login - JRSL Apartment Management System</title>
     <link rel="stylesheet" href="../styles.css"> <!-- Adjusted path to styles.css -->
 </head>
 <body>
-    <div class="login-container">
-        <h2>Login</h2>
-        <?php if (!empty($error)) { echo "<p class='error'>$error</p>"; } ?>
-        <form method="post" action="">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required>
-            <input type="submit" value="Login">
-        </form>
+    <div class="login-wrapper">
+        <h1>JRSL Apartment Management System</h1>
+        <div class="login-container">
+            <h2>Login</h2>
+            <?php if (!empty($error)) { echo "<p class='error'>$error</p>"; } ?>
+            <form method="post" action="">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <input type="submit" value="Login">
+            </form>
+        </div>
     </div>
 </body>
 </html>

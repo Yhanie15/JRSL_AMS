@@ -10,7 +10,7 @@ if (!isset($_SESSION['username'])) {
 include 'db.php'; // Include db.php to get $pdo connection
 
 // Function to get the status of rent payment
-function getRentStatus($pdo, $unit_number, $due_date) {
+function getRentStatus($pdo, $unit_number, $due_date, $move_in_date) {
     try {
         // Check if rent_payments table exists
         $table_check = $pdo->query("SELECT 1 FROM rent_payments LIMIT 1");
@@ -65,11 +65,12 @@ if (isset($_SESSION['bills'])) {
     unset($_SESSION['bills']);
 }
 
-// Fetch room data with bills and tenants
+// Fetch room data with bills, tenants, and rent amount per month
 $stmt = $pdo->query("
     SELECT rooms.id, rooms.unit_number, rooms.rent,
     COALESCE(SUM(bills.water_bill + bills.electricity_bill), 0) AS total_bills,
-    MAX(tenants.move_in_date) AS move_in_date
+    MAX(tenants.move_in_date) AS move_in_date,
+    rooms.rent AS rent_per_month
     FROM rooms
     LEFT JOIN bills ON rooms.unit_number = bills.unit_number
     LEFT JOIN tenants ON rooms.unit_number = tenants.unit_number
@@ -139,43 +140,7 @@ $currentDate = date('Y-m-d');
         .back-button:hover {
             background-color: #999;
         }
-
-        .sidebar {
-            height: 100%;
-            width: 250px;
-            position: fixed;
-            z-index: 1;
-            top: 0;
-            left: 0;
-            background-color: #111;
-            overflow-x: hidden;
-            padding-top: 20px;
-        }
-
-        .sidebar a {
-            padding: 10px 15px;
-            text-decoration: none;
-            font-size: 18px;
-            color: #818181;
-            display: block;
-        }
-
-        .sidebar a:hover {
-            color: #f1f1f1;
-        }
-
-        .sidebar .sidebar-header {
-            padding: 10px 15px;
-            text-align: center;
-            background: #111;
-            color: white;
-        }
-
-        .main-content {
-            margin-left: 250px; /* Same width as the sidebar */
-            padding: 20px;
-        }
-
+         
         .search-bar {
             margin-bottom: 20px;
         }
@@ -228,52 +193,54 @@ $currentDate = date('Y-m-d');
             </thead>
             <tbody>
                 <?php foreach ($rooms as $room): 
-                    // Calculate due date based on move-in date + 1 month
-                    $due_date = date('Y-m-d', strtotime($room['move_in_date'] . ' + 1 month'));
-                    $status = getRentStatus($pdo, $room['unit_number'], $due_date);
-                    $due_date_display = htmlspecialchars($due_date) . ' (' . htmlspecialchars($status) . ')';
-                    $total_bills = $room['total_bills'];
-                ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($room['unit_number']); ?></td>
-                        <td>$<?php echo htmlspecialchars($room['rent']); ?></td>
-                        <td><?php echo $due_date_display; ?></td>
-                        <td>$<?php echo htmlspecialchars($total_bills); ?></td>
-                        <td>
-                            <a href="view_unit_details.php?id=<?php echo $room['id']; ?>" class="button">View</a>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                    // Calculate the due date based on move-in date + 1 month
+                    $move_in_date = new DateTime($room['move_in_date']);
+                    $current_date = new DateTime();
+                    $months_stayed = $move_in_date->diff($current_date)->m + ($move_in_date->diff($current_date)->y * 12); // Calculate total months stayed
+                    $total_due = $months_stayed * $room['rent_per_month']; // Calculate total amount due
+                                    // Determine the due date based on the current date
+                $due_date = date('Y-m-d', strtotime($room['move_in_date'] . ' + ' . ($months_stayed + 1) . ' months'));
+                $status = getRentStatus($pdo, $room['unit_number'], $due_date, $room['move_in_date']);
+                $due_date_display = htmlspecialchars($due_date) . ' (' . htmlspecialchars($status) . ')';
+                $total_bills = $room['total_bills'];
+            ?>
+                <tr>
+                    <td><?php echo htmlspecialchars($room['unit_number']); ?></td>
+                    <td>PHP <?php echo htmlspecialchars($total_due); ?></td>
+                    <td><?php echo $due_date_display; ?></td>
+                    <td>PHP <?php echo htmlspecialchars($total_bills); ?></td>
+                    <td>
+                        <a href="view_unit_details.php?id=<?php echo $room['id']; ?>" class="button">View</a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
 
-        <!-- Back button -->
-        <a href="dashboard.php" class="back-button">Back to Dashboard</a>
-    </div>
+</div>
 
-    <script>
-        function searchTable() {
-            // Declare variables
-            var input, filter, table, tr, td, i, txtValue;
-            input = document.getElementById("searchInput");
-            filter = input.value.toUpperCase();
-            table = document.getElementById("roomsTable");
-            tr = table.getElementsByTagName("tr");
+<script>
+    function searchTable() {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("roomsTable");
+        tr = table.getElementsByTagName("tr");
 
-            // Loop through all table rows, and hide those who don't match the search query
-            for (i = 1; i < tr.length; i++) {
-                td = tr[i].getElementsByTagName("td")[0]; // Assumes searching by first column (unit number)
-                if (td) {
-                    txtValue = td.textContent || td.innerText;
-                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                        tr[i].style.display = "";
-                    } else {
-                        tr[i].style.display = "none";
-                    }
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 1; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[0]; // Assumes searching by first column (unit number)
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
                 }
             }
         }
-    </script>
+    }
+</script>
 </body>
 </html>
-

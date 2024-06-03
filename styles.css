@@ -11,13 +11,25 @@ body {
     background-repeat: no-repeat;
 }
 
+.login-wrapper {
+    text-align: center;
+    width: 100%;
+}
+
+h1 {
+    font-size: 36px;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #fff;
+}
+
 .login-container {
     background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent background */
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     width: 300px;
-    text-align: center;
+    margin: 0 auto;
 }
 
 .login-container h2 {
@@ -64,7 +76,12 @@ body {
 .sidebar {
     height: 100vh;
     width: 250px;
-    background-color: #333;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
     color: white;
     display: flex;
     flex-direction: column;
@@ -72,9 +89,24 @@ body {
     padding-top: 20px;
 }
 
+.sidebar a {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #818181;
+    display: block;
+}
+
+.sidebar a:hover {
+    color: #f1f1f1;
+}
+
 .sidebar-header {
     text-align: center;
     margin-bottom: 20px;
+    padding: 10px 15px;
+    background: #111;
+    color: white;
 }
 
 .sidebar-header h1 {
@@ -99,13 +131,16 @@ body {
     color: white;
     text-decoration: none;
 }
-
+.sidebar a:hover {
+    color: #f1f1f1;
+} 
 .sidebar ul li a:hover,
 .sidebar ul li a.active {
     background-color: #575757;
 }
 
 .main-content {
+    margin-left: 250px;
     flex-grow: 1;
     padding: 20px;
     background-color: rgba(240, 240, 240, 0.7);

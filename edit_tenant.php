@@ -78,8 +78,8 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-family: Arial, sans-serif;
             overflow-x: hidden; /* Hide horizontal scrollbar */
         }
-
-        /* Style for the fixed sidebar */
+    
+        /* Style for the fixed sidebar*/
         .sidebar {
             height: 100%;
             width: 250px;
@@ -90,6 +90,7 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
             overflow-x: hidden; /* Hide horizontal scrollbar */
             padding-top: 20px;
         }
+    
 
         .sidebar a {
             padding: 10px 15px;

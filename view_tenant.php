@@ -102,17 +102,7 @@ if (!$tenant) {
             background-color: #999;
         }
 
-        .sidebar {
-            height: 100%;
-            width: 250px;
-            position: fixed;
-            z-index: 1;
-            top: 0;
-            left: 0;
-            background-color: #111;
-            overflow-x: hidden;
-            padding-top: 20px;
-        }
+        
 
         .sidebar a {
             padding: 10px 15px;
@@ -168,7 +158,7 @@ if (!$tenant) {
             <p><strong>Phone:</strong> <?php echo htmlspecialchars($tenant['phone']); ?></p>
             <p><strong>Move-in Date:</strong> <?php echo htmlspecialchars($tenant['move_in_date']); ?></p>
             <p><strong>Unit Number:</strong> <?php echo htmlspecialchars($tenant['unit_number']); ?></p>
-            <p><strong>Rent:</strong> $<?php echo htmlspecialchars($tenant['rent']); ?></p>
+            <p><strong>Rent:</strong> PHP <?php echo htmlspecialchars($tenant['rent']); ?></p>
             <p><strong>Gender:</strong> <?php echo htmlspecialchars($tenant['gender']); ?></p>
             <p><strong>Address:</strong><br> <?php echo htmlspecialchars($tenant['address']); ?></p>
             <p><strong>Birthday:</strong> <?php echo htmlspecialchars($tenant['birthday']); ?></p>

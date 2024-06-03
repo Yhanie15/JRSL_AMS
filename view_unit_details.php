@@ -212,12 +212,10 @@ $total_bills = $stmt->fetch(PDO::FETCH_ASSOC);
         <div class="unit-details">
             <h2>Unit Details</h2>
             <p><strong>Unit Number:</strong> <?php echo htmlspecialchars($room['unit_number']); ?></p>
-            <p><strong>Rent:</strong> $<?php echo htmlspecialchars($room['rent']); ?></p>
-        
+
             <!-- Display total bills from the database -->
             
             <?php if ($total_bills): ?>
-                <h3>Total Bills:</h3>
                 <p><strong>Total Electricity Bill:</strong> $<?php echo number_format($total_bills['total_electricity_bill'], 2); ?></p>
                 <p><strong>Total Water Bill:</strong> $<?php echo number_format($total_bills['total_water_bill'], 2); ?></p>
             <?php endif; ?>
