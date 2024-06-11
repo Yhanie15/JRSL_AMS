@@ -88,7 +88,7 @@ $total_bills = $stmt->fetch(PDO::FETCH_ASSOC);
     <!-- Sidebar navigation - This is a sample, adjust based on your actual design -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <h1>JRLS Apartment Management System</h1>
+        <img src="images/jrsl logo without bg1.png" alt="Description of the image" style="width:100%; height:auto;">
         </div>
         <ul>
             <li><a href="dashboard.php">Dashboard</a></li>

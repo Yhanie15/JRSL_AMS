@@ -95,7 +95,7 @@ $currentDate = date('Y-m-d');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bills & Payment</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="styles.css"> !-- Ensure this stylesheet exists -->
+    <link rel="stylesheet" href="styles.css"> <!-- Ensure this stylesheet exists -->
     <link rel="stylesheet" href="JRSLCSS/bills_payment.css"> 
 
 </head>
@@ -104,7 +104,7 @@ $currentDate = date('Y-m-d');
     <!-- Sidebar navigation -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <h1>JRLS Apartment Management System</h1>
+        <img src="images/jrsl logo without bg1.png" alt="Description of the image" style="width:100%; height:auto;">
         </div>
         <ul>
             <li><a href="dashboard.php">Dashboard</a></li>

@@ -64,9 +64,9 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
 </head>
 <body>
     <div class="login-wrapper">
-        <h1>JRSL Apartment Management System</h1>
         <div class="login-container">
             <h2>Login</h2>
+            
             <?php if (!empty($error)) { echo "<p class='error'>$error</p>"; } ?>
             <form method="post" action="">
                 <label for="username">Username:</label>
