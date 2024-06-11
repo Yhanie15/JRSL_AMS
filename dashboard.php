@@ -48,7 +48,13 @@ try {
             <li><a href="dashboard.php" class="active">Dashboard</a></li>
             <li><a href="view_tenants.php">View Tenants</a></li>
             <li><a href="view_rooms.php">View Rooms</a></li>
-            <li><a href="bills_payment.php">Bills & Payment</a></li>
+            <li>
+                <a >Bills & Payment</a>
+                <ul>
+                    <li><a href="rent.php">Rent Page</a></li>
+                    <li><a href="bills_payment.php">Bills Page</a></li>
+                </ul>
+            </li>
             <li><a href="reports.php">Reports</a></li>
             <li><a href="login/logout.php">Logout</a></li>
         </ul>
