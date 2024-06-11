@@ -95,71 +95,9 @@ $currentDate = date('Y-m-d');
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bills & Payment</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="styles.css"> <!-- Ensure this stylesheet exists -->
-    <style>
-        .main-content {
-            padding: 20px;
-        }
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="JRSLCSS/bills_payment.css"> <!-- Ensure this stylesheet exists -->
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-
-        .button {
-            background-color: #4CAF50; /* Green */
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 14px;
-            margin-right: 5px;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-
-        .button:hover {
-            background-color: #3e8e41;
-        }
-
-        .back-button {
-            margin-top: 20px;
-            background-color: #ccc;
-            padding: 8px 16px;
-            text-decoration: none;
-            color: #333;
-            border-radius: 3px;
-            display: inline-block;
-        }
-
-        .back-button:hover {
-            background-color: #999;
-        }
-         
-        .search-bar {
-            margin-bottom: 20px;
-        }
-
-        .search-bar input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            box-sizing: border-box;
-            border: 1px solid #ddd;
-            border-radius: 3px;
-        }
-    </style>
 </head>
 <body>
 

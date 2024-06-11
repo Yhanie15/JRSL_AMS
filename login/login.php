@@ -9,7 +9,7 @@ if (isset($_POST['username']) && isset($_POST['password'])) {
     $password = $_POST['password'];
 
     // Create a connection
-    $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+    $conn = new mysqli("localhost", "root", "" , "apartment_management");
 
     // Check connection
     if ($conn->connect_error) {

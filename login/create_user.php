@@ -5,7 +5,7 @@ $username = 'testuser';
 $password = 'password';
 $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+$conn = new mysqli("localhost", "root", "" , "phpmyadmin");
 
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
