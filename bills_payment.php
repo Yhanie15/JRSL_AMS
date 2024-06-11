@@ -130,8 +130,6 @@ $currentDate = date('Y-m-d');
             <thead>
                 <tr>
                     <th>Unit Number</th>
-                    <th>Rent</th>
-                    <th>Due Date of Rent</th>
                     <th>Total Bills</th>
                     <th>Due Date of Bills</th>
                     <th>Actions</th>
@@ -140,22 +138,13 @@ $currentDate = date('Y-m-d');
             <tbody>
             <?php foreach ($rooms as $room): 
     // Calculate the due date based on move-in date + 1 month
-    $move_in_date = new DateTime($room['move_in_date']);
-    $current_date = new DateTime();
-    $months_stayed = $move_in_date->diff($current_date)->m + ($move_in_date->diff($current_date)->y * 12); // Calculate total months stayed
-    $total_due = $months_stayed * $room['rent_per_month']; // Calculate total amount due
-    // Determine the due date based on the current date
-    $due_date = date('Y-m-d', strtotime($room['move_in_date'] . ' + ' . ($months_stayed + 1) . ' months'));
-    $status = getRentStatus($pdo, $room['unit_number'], $due_date, $room['move_in_date']);
-    $due_date_display = htmlspecialchars($due_date) . ' (' . htmlspecialchars($status) . ')';
+    
     $total_bills = $room['total_bills'];
     $bills_due_date = date('Y-m-d', strtotime($currentDate . ' + 1 week'));
-    $rent = $room['tenant_move_in_date'] ? $room['rent_per_month'] : 0; // If there's a tenant, use the rent_per_month, otherwise, set rent to 0
+   
 ?>
 <tr>
     <td><?php echo htmlspecialchars($room['unit_number']); ?></td>
-    <td>PHP <?php echo htmlspecialchars($rent); ?></td>
-    <td><?php echo $due_date_display; ?></td>
     <td>PHP <?php echo htmlspecialchars($total_bills); ?></td>
     <td><?php echo htmlspecialchars($bills_due_date); ?></td>
     <td>
