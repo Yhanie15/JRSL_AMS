@@ -65,24 +65,28 @@ if (isset($_SESSION['bills'])) {
     unset($_SESSION['bills']);
 }
 
-// Fetch room data with bills and rent amount per month
-$stmt = $pdo->query("
-SELECT 
-    rooms.id, 
-    rooms.unit_number, 
-    rooms.rent AS rent_per_month,
-    COALESCE(SUM(bills.water_bill + bills.electricity_bill), 0) AS total_bills,
-    MAX(tenant_move_in.move_in_date) AS move_in_date,
-    tenants.move_in_date AS tenant_move_in_date
-FROM rooms
-LEFT JOIN bills ON rooms.unit_number = bills.unit_number
-LEFT JOIN (SELECT unit_number, move_in_date FROM tenants GROUP BY unit_number) AS tenant_move_in ON rooms.unit_number = tenant_move_in.unit_number
-LEFT JOIN tenants ON rooms.unit_number = tenants.unit_number
-GROUP BY rooms.id, rooms.unit_number, rooms.rent
-");
-$rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
+try {
+    // Fetch room data with rent amount per month
+    $stmt = $pdo->query("
+        SELECT 
+            rooms.id, 
+            rooms.unit_number, 
+            rooms.rent AS rent_per_month,
+            COALESCE(SUM(bills.water_bill + bills.electricity_bill), 0) AS total_bills,
+            MAX(tenant_move_in.move_in_date) AS move_in_date,
+            tenants.move_in_date AS tenant_move_in_date
+        FROM rooms
+        LEFT JOIN bills ON rooms.unit_number = bills.unit_number
+        LEFT JOIN (SELECT unit_number, move_in_date FROM tenants GROUP BY unit_number) AS tenant_move_in ON rooms.unit_number = tenant_move_in.unit_number
+        LEFT JOIN tenants ON rooms.unit_number = tenants.unit_number
+        GROUP BY rooms.id, rooms.unit_number, rooms.rent
+    ");
+    $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$currentDate = date('Y-m-d');
+    $currentDate = date('Y-m-d');
+} catch (PDOException $e) {
+    echo "Error: " . $e->getMessage();
+}
 ?>
 
 <!DOCTYPE html>
@@ -125,11 +129,6 @@ $currentDate = date('Y-m-d');
             margin-right: 5px;
             cursor: pointer;
             border-radius: 3px;
-        }
-
-        .button.disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
         }
 
         .button:hover {
@@ -200,7 +199,7 @@ $currentDate = date('Y-m-d');
             <thead>
                 <tr>
                     <th>Unit Number</th>
-                    <th>Rent</th>
+                    <th>Monthly Rent</th>
                     <th>Due Date of Rent</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -227,46 +226,45 @@ $currentDate = date('Y-m-d');
             ?>
             <tr>
                 <td><?php echo htmlspecialchars($room['unit_number']); ?></td>
-                <td>PHP <?php echo htmlspecialchars($rent); ?></td>
+                <td>PHP <?php echo htmlspecialchars($room['rent_per_month']); ?></td>
                 <td><?php echo $due_date_display; ?></td>
                 <td><?php echo htmlspecialchars($status); ?></td>
                 <td>
-                    <?php if ($status === 'Unpaid'): ?>
-                        <a href="?id=<?php echo $room['id']; ?>" class="button">View</a>
-                    <?php else: ?>
-                        <button class="button disabled" disabled>View</button>
-                    <?php endif; ?>
+                    <a href="view_payment.php?id=<?php echo $room['id']; ?>" class="button">View</a>
                 </td>
             </tr>
             <?php endforeach; ?>
             </tbody>
         </table>
 
-        <a href="bills_payment.php" class="back-button">Back to Bills & Payment</a>
-    </div>
+        <a href="bills_payment.php" class="back-button">
+        Back to Bills & Payment
+</a>
+</div>
 
-    <script>
-        function searchTable() {
-            // Declare variables
-            var input, filter, table, tr, td, i, txtValue;
-            input = document.getElementById("searchInput");
-            filter = input.value.toUpperCase();
-    table = document.getElementById("roomsTable");
-    tr = table.getElementsByTagName("tr");
+<script>
+    function searchTable() {
+        // Declare variables
+        var input, filter, table, tr, td, i, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("roomsTable");
+        tr = table.getElementsByTagName("tr");
 
-    // Loop through all table rows, and hide those who don't match the search query
-    for (i = 0; i < tr.length; i++) {
-        td = tr[i].getElementsByTagName("td")[0]; // Assumes searching by first column
-        if (td) {
-            txtValue = td.textContent || td.innerText;
-            if (txtValue.toUpperCase().indexOf(filter) > -1) {
-                tr[i].style.display = "";
-            } else {
-                tr[i].style.display = "none";
+        // Loop through all table rows, and hide those who don't match the search query
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td")[0]; // Assumes searching by first column
+            if (td) {
+                txtValue = td.textContent || td.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                } else {
+                    tr[i].style.display = "none";
+                }
             }
         }
     }
-}
 </script>
+
 </body>
 </html>
