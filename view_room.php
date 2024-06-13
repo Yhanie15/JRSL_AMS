@@ -40,139 +40,16 @@ if (!$room) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Room <?php echo htmlspecialchars($room['unit_number']); ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        .main-content {
-            padding: 20px; /* Adjust padding as needed */
-        }
+    <link rel="stylesheet" href="styles.css"> 
+    <link rel="stylesheet" href="JRSLCSS/view_room.css">
 
-        .room-info {
-            background-color: #f2f2f2;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .room-info h2 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .room-info p {
-            font-size: 18px;
-            margin-bottom: 5px;
-        }
-
-        .tenant-list {
-            margin-top: 20px;
-        }
-
-        .tenant-list table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .tenant-list table, .tenant-list th, .tenant-list td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-
-        .tenant-list th {
-            background-color: #f2f2f2;
-        }
-
-        .button {
-            background-color: #4CAF50; /* Green */
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 14px;
-            margin-right: 5px;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-
-        .button.delete-button {
-            background-color: #f44336; /* Red */
-        }
-
-        .button:hover {
-            background-color: #3e8e41;
-        }
-
-        .button.delete-button:hover {
-            background-color: #e57373;
-        }
-
-        .back-button {
-            margin-top: 20px;
-            background-color: #ccc;
-            padding: 8px 16px;
-            text-decoration: none;
-            color: #333;
-            border-radius: 3px;
-        }
-
-        .back-button:hover {
-            background-color: #999;
-        }
-
-        .edit-button {
-            background-color: #007bff; /* Blue */
-        }
-
-        .edit-button:hover {
-            background-color: #0056b3;
-        }
-
-        .sidebar {
-            height: 100%;
-            width: 250px;
-            position: fixed;
-            z-index: 1;
-            top: 0;
-            left: 0;
-            background-color: #111;
-            overflow-x: hidden;
-            padding-top: 20px;
-        }
-
-        .sidebar a {
-            padding: 10px 15px;
-            text-decoration: none;
-            font-size: 18px;
-            color: #818181;
-            display: block;
-        }
-
-        .sidebar a:hover {
-            color: #f1f1f1;
-        }
-
-        .sidebar .sidebar-header {
-            padding: 10px 15px;
-            text-align: center;
-            background: #111;
-            color: white;
-        }
-
-        .main-content {
-            margin-left: 250px; /* Same width as the sidebar */
-            padding: 20px;
-        }
-    </style>
 </head>
 <body>
 
     <!-- Sidebar navigation -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <h1>JRLS Apartment Management System</h1>
+        <img src="images/jrsl logo without bg1.png" alt="Description of the image" style="width:100%; height:auto;">
         </div>
         <ul>
             <li><a href="dashboard.php">Dashboard</a></li>

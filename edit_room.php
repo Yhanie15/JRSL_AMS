@@ -51,80 +51,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Room <?php echo htmlspecialchars($room['unit_number']); ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
-    <style>
-        .main-content {
-            padding: 20px; /* Adjust padding as needed */
-        }
-
-        .form-container {
-            background-color: #f2f2f2;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .form-container h2 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .form-container label {
-            font-size: 18px;
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .form-container input[type="text"], .form-container input[type="number"] {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            font-size: 16px;
-        }
-
-        .button {
-            background-color: #007bff; /* Blue */
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 16px;
-            margin-top: 10px;
-            cursor: pointer;
-            border-radius: 3px;
-        }
-
-        .button:hover {
-            background-color: #0056b3;
-        }
-
-        .back-button {
-            background-color: #ccc;
-            padding: 10px 20px;
-            text-decoration: none;
-            color: #333;
-            border-radius: 3px;
-            display: inline-block;
-            font-size: 16px;
-            margin-top: 10px;
-        }
-
-        .back-button:hover {
-            background-color: #999;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css"> <!-- Ensure this stylesheet exists -->
+    <link rel="stylesheet" href="JRSLCSS/edit_room.css">
 </head>
 <body>
 
     <!-- Sidebar navigation -->
     <div class="sidebar">
         <div class="sidebar-header">
-            <h1>JRLS Apartment Management System</h1>
+        <img src="images/jrsl logo without bg1.png" alt="Description of the image" style="width:100%; height:auto;">
         </div>
         <ul>
             <li><a href="dashboard.php">Dashboard</a></li>
