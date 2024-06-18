@@ -113,8 +113,8 @@ $total_bills = $stmt->fetch(PDO::FETCH_ASSOC);
             <!-- Display total bills from the database -->
             
             <?php if ($total_bills): ?>
-                <p><strong>Total Electricity Bill:</strong> $<?php echo number_format($total_bills['total_electricity_bill'], 2); ?></p>
-                <p><strong>Total Water Bill:</strong> $<?php echo number_format($total_bills['total_water_bill'], 2); ?></p>
+                <p><strong>Total Electricity Bill:</strong> PHP<?php echo number_format($total_bills['total_electricity_bill'], 2); ?></p>
+                <p><strong>Total Water Bill:</strong> PHP<?php echo number_format($total_bills['total_water_bill'], 2); ?></p>
             <?php endif; ?>
         </div>
          
@@ -122,7 +122,7 @@ $total_bills = $stmt->fetch(PDO::FETCH_ASSOC);
         <div class="form-container">
             <h2>Calculate Bills</h2>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]) . '?id=' . $id; ?>" method="post">
-                <label for="electricity_rate">Electricity Rate ($ per kWh):</label>
+                <label for="electricity_rate">Electricity Rate (PHP per kWh):</label>
                 <input type="number" id="electricity_rate" name="electricity_rate" step="0.01" required
                     value="<?php echo isset($_POST['electricity_rate']) ? htmlspecialchars($_POST['electricity_rate']) : ''; ?>">
 
@@ -130,7 +130,7 @@ $total_bills = $stmt->fetch(PDO::FETCH_ASSOC);
                 <input type="number" id="electricity_consumption" name="electricity_consumption" required
                     value="<?php echo isset($_POST['electricity_consumption']) ? htmlspecialchars($_POST['electricity_consumption']) : ''; ?>">
 
-                <label for="water_rate">Water Rate ($ per gallon):</label>
+                <label for="water_rate">Water Rate (PHP per gallon):</label>
                 <input type="number" id="water_rate" name="water_rate" step="0.01" required
                     value="<?php echo isset($_POST['water_rate']) ? htmlspecialchars($_POST['water_rate']) : ''; ?>">
 
@@ -147,8 +147,8 @@ $total_bills = $stmt->fetch(PDO::FETCH_ASSOC);
         <?php if (isset($_SESSION['bills'])) : ?>
             <div class="form-container">
                 <h2>Calculated Bills</h2>
-                <p><strong>Electricity Bill:</strong> $<?php echo number_format($bills['total_electricity_bill'], 2); ?></p>
-                <p><strong>Water Bill:</strong> $<?php echo number_format($bills['total_water_bill'], 2); ?></p>
+                <p><strong>Electricity Bill:</strong> PHP<?php echo number_format($bills['total_electricity_bill'], 2); ?></p>
+                <p><strong>Water Bill:</strong> PHP<?php echo number_format($bills['total_water_bill'], 2); ?></p>
             </div>
         <?php endif; ?>
 

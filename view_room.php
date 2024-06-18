@@ -67,7 +67,7 @@ if (!$room) {
             <h2>Room Information</h2>
             <p><strong>ID:</strong> <?php echo htmlspecialchars($room['id']); ?></p>
             <p><strong>Unit Number:</strong> <?php echo htmlspecialchars($room['unit_number']); ?></p>
-            <p><strong>Rent:</strong> $<?php echo htmlspecialchars($room['rent']); ?></p>
+            <p><strong>Rent:</strong> PHP<?php echo htmlspecialchars($room['rent']); ?></p>
             <p><strong>Capacity:</strong> <?php echo htmlspecialchars($room['capacity']); ?></p>
             <a href="edit_room.php?id=<?php echo $room['id']; ?>" class="button edit-button">Edit Room</a>
             <a href="view_rooms.php" class="back-button">Back to Rooms List</a>

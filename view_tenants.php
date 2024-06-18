@@ -35,7 +35,13 @@ $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <li><a href="dashboard.php">Dashboard</a></li>
             <li><a href="view_tenants.php" class="active">View Tenants</a></li>
             <li><a href="view_rooms.php">View Rooms</a></li>
-            <li><a href="bills_payment.php">Bills & Payment</a></li>
+            <li class="dropdown">
+                <a href="#">Bills & Payment</a>
+                <ul class="dropdown-content">
+                    <li><a href="rent.php">Rent Page</a></li>
+                    <li><a href="bills_payment.php">Bills Page</a></li>
+                </ul>
+            </li>
             <li><a href="reports.php">Reports</a></li>
             <li><a href="login/logout.php">Logout</a></li>
         </ul>
@@ -78,5 +84,17 @@ $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         <a href="dashboard.php" class="back-button">Back to Dashboard</a>
     </div>
+    <script>
+        // JavaScript to handle dropdown menu
+        document.querySelectorAll('.sidebar .dropdown > a').forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                let nextEl = item.nextElementSibling;
+                if(nextEl && nextEl.classList.contains('dropdown-content')) {
+                    e.preventDefault();
+                    nextEl.style.display = nextEl.style.display === 'block' ? 'none' : 'block';
+                }
+            });
+        });
+    </script>
 </body>
 </html>

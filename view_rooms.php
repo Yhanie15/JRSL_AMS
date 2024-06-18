@@ -25,20 +25,25 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="JRSLCSS/view_rooms.css">
-
 </head>
 <body>
 
     <!-- Sidebar navigation -->
     <div class="sidebar">
         <div class="sidebar-header">
-        <img src="images/jrsl logo without bg1.png" alt="Description of the image" style="width:100%; height:auto;">
+            <img src="images/jrsl logo without bg1.png" alt="Description of the image" style="width:100%; height:auto;">
         </div>
         <ul>
             <li><a href="dashboard.php">Dashboard</a></li>
             <li><a href="view_tenants.php">View Tenants</a></li>
             <li><a href="view_rooms.php" class="active">View Rooms</a></li>
-            <li><a href="bills_payment.php">Bills & Payment</a></li>
+            <li class="dropdown">
+                <a href="#">Bills & Payment</a>
+                <ul class="dropdown-content">
+                    <li><a href="rent.php">Rent Page</a></li>
+                    <li><a href="bills_payment.php">Bills Page</a></li>
+                </ul>
+            </li>
             <li><a href="reports.php">Reports</a></li>
             <li><a href="login/logout.php">Logout</a></li>
         </ul>
@@ -86,6 +91,17 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 window.location.href = `delete_room.php?id=${id}`;
             }
         }
+
+        // JavaScript to handle dropdown menu
+        document.querySelectorAll('.sidebar .dropdown > a').forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                let nextEl = item.nextElementSibling;
+                if (nextEl && nextEl.classList.contains('dropdown-content')) {
+                    e.preventDefault();
+                    nextEl.style.display = nextEl.style.display === 'block' ? 'none' : 'block';
+                }
+            });
+        });
     </script>
 </body>
 </html>

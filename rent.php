@@ -175,9 +175,9 @@ try {
             <li><a href="dashboard.php">Dashboard</a></li>
             <li><a href="view_tenants.php">View Tenants</a></li>
             <li><a href="view_rooms.php">View Rooms</a></li>
-            <li>
-                <a >Bills & Payment</a>
-                <ul>
+            <li class="dropdown">
+                <a href="#">Bills & Payment</a>
+                <ul class="dropdown-content">
                     <li><a href="rent.php">Rent Page</a></li>
                     <li><a href="bills_payment.php">Bills Page</a></li>
                 </ul>
@@ -266,6 +266,18 @@ try {
             }
         }
     }
+
+        // JavaScript to handle dropdown menu
+        document.querySelectorAll('.sidebar .dropdown > a').forEach(function(item) {
+            item.addEventListener('click', function(e) {
+                let nextEl = item.nextElementSibling;
+                if(nextEl && nextEl.classList.contains('dropdown-content')) {
+                    e.preventDefault();
+                    nextEl.style.display = nextEl.style.display === 'block' ? 'none' : 'block';
+                }
+            });
+        });
+
 </script>
 
 </body>
