@@ -34,55 +34,132 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="styles.css"> <!-- Make sure styles.css is updated to include nav styles -->
+    <link rel="stylesheet" href="JRSLCSS/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <img src="images/jrsl logo without bg1.png" alt="Description of the image" style="width:100%; height:auto;">
-        </div>
-        <ul>
-            <li><a href="dashboard.php" class="active">Dashboard</a></li>
-            <li><a href="view_tenants.php">View Tenants</a></li>
-            <li><a href="view_rooms.php">View Rooms</a></li>
-            <li class="dropdown">
-                <a href="#">Bills & Payment</a>
-                <ul class="dropdown-content">
-                    <li><a href="rent.php">Rent Page</a></li>
-                    <li><a href="bills_payment.php">Bills Page</a></li>
-                </ul>
-            </li>
-            <li><a href="reports.php">Reports</a></li>
-            <li><a href="login/logout.php">Logout</a></li>
-        </ul>
+      <?php include 'sidebar.php'; ?>
+   
+        <div class="main-content">
+            <div class="header">
+                <h1>Welcome to Admin Dashboard</h1>
+                <div class="header-icons">
+                    <i class="fas fa-bell"></i>
+                    <i class="fas fa-user-circle"></i>
+                </div>
+            </div>
+
+            <div class="cards">
+                <div class="card">
+                    <h3>Tenants</h3>
+                    <p>10</p>
+                </div>
+                <div class="card">
+                    <h3>Rooms</h3>
+                    <p>20</p>
+                </div>
+                <div class="card">
+                    <h3>Income</h3>
+                    <p>10,000</p>
+                </div>
+                <div class="card">
+                    <h3>Pending Payment</h3>
+                    <p>20,000</p>
+                </div>
+            </div>
+
+            <div class="content-row">
+                <div class="payment-table">
+                    <h3>Payment to be collected:</h3>
+                    <table>
+                        <tr>
+                            <th>Room</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </tr>
+                        <tr>
+                            <td>Room 2022</td>
+                            <td>5,000</td>
+                            <td><button class="notify-btn">Notify</button></td>
+                        </tr>
+                        <tr>
+                            <td>Room 2028</td>
+                            <td>5,000</td>
+                            <td><button class="notify-btn">Notify</button></td>
+                        </tr>
+                        <tr>
+                            <td>Room 2042</td>
+                            <td>5,000</td>
+                            <td><button class="notify-btn">Notify</button></td>
+                        </tr>
+                        <tr>
+                            <td>Room 2022</td>
+                            <td>5,000</td>
+                            <td><button class="notify-btn">Notify</button></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="chart-container">
+                    <h3>Room Occupancy Status</h3>
+                    <canvas id="roomOccupancyChart"></canvas>
+                </div>
+            </div>
+
+            <div class="content-row">
+    <div class="chart-container">
+        <h3>Income Revenue</h3>
+        <canvas id="incomeRevenueChart"></canvas>
     </div>
-    <div class="main-content">
-        <h2>Welcome to the Dashboard</h2>
-        <div class="overview">
-            <div class="overview-item">
-                <i class="fas fa-users"></i> <!-- Icon for number of tenants -->
-                <p>Total Tenants: <span><?php echo $total_tenants; ?></span></p>
-            </div>
-            <div class="overview-item">
-                <i class="fas fa-money-bill-wave"></i> <!-- Icon for monthly collection -->
-                <p>Monthly Collection: $<span><?php echo number_format($total_monthly_collection, 2); ?></span></p>
-            </div>
-            <div class="overview-item">
-                <i class="fas fa-door-open"></i> <!-- Icon for number of rooms -->
-                <p>Total Rooms: <span><?php echo $total_rooms; ?></span></p>
-            </div>
-        </div>
+</div>
+
+</div>
+
+    
     </div>
+
+    <!-- Chart.js Script -->
     <script>
-        // JavaScript to handle dropdown menu
-        document.querySelectorAll('.sidebar .dropdown > a').forEach(function(item) {
-            item.addEventListener('click', function(e) {
-                let nextEl = item.nextElementSibling;
-                if(nextEl && nextEl.classList.contains('dropdown-content')) {
-                    e.preventDefault();
-                    nextEl.style.display = nextEl.style.display === 'block' ? 'none' : 'block';
+        // Room Occupancy Pie Chart
+        const roomOccupancyCtx = document.getElementById('roomOccupancyChart').getContext('2d');
+        const roomOccupancyChart = new Chart(roomOccupancyCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Occupied', 'Vacant'],
+                datasets: [{
+                    data: [33.3, 66.7], // Example data
+                    backgroundColor: ['#36A2EB', '#FF6384'],
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+        // Income Revenue Bar Chart
+        const incomeRevenueCtx = document.getElementById('incomeRevenueChart').getContext('2d');
+        const incomeRevenueChart = new Chart(incomeRevenueCtx, {
+            type: 'bar',
+            data: {
+                labels: ['June', 'July', 'August', 'September','October'],
+                datasets: [{
+                    label: '2023',
+                    data: [5, 10, 15, 20, 25], // Example data for 2023
+                    backgroundColor: '#36A2EB'
+                }, {
+                    label: '2024',
+                    data: [10, 15, 20, 25, 30], // Example data for 2024
+                    backgroundColor: '#FF6384'
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
                 }
-            });
+            }
         });
     </script>
 </body>
