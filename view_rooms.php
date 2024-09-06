@@ -76,15 +76,7 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         // JavaScript to handle dropdown menu
-        document.querySelectorAll('.sidebar .dropdown > a').forEach(function(item) {
-            item.addEventListener('click', function(e) {
-                let nextEl = item.nextElementSibling;
-                if (nextEl && nextEl.classList.contains('dropdown-content')) {
-                    e.preventDefault();
-                    nextEl.style.display = nextEl.style.display === 'block' ? 'none' : 'block';
-                }
-            });
-        });
+        
     </script>
 </body>
 </html>
