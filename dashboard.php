@@ -51,18 +51,22 @@ try {
 
             <div class="cards">
                 <div class="card">
+                <i class="fas fa-users"></i>
                     <h3>Tenants</h3>
-                    <p>10</p>
+                    <span><?php echo $total_tenants; ?></span>
                 </div>
                 <div class="card">
+                <i class="fas fa-home"></i>
                     <h3>Rooms</h3>
-                    <p>20</p>
+                    <span><?php echo $total_rooms; ?></span>
                 </div>
                 <div class="card">
+                <i class="fas fa-dollar-sign"></i>
                     <h3>Income</h3>
                     <p>10,000</p>
                 </div>
                 <div class="card">
+                <i class="fas fa-exclamation-circle"></i>
                     <h3>Pending Payment</h3>
                     <p>20,000</p>
                 </div>

@@ -79,6 +79,14 @@ body {
     font-size: 24px;
     margin-top: 10px;
 }
+.card span {
+    font-size: 24px;
+    margin-top: 10px;
+}
+.card i{
+    font-size: 24px;
+    margin-right: 10px;
+}
 .content-row {
     display: flex;
     margin-top: 20px;

@@ -74,8 +74,6 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 window.location.href = `delete_room.php?id=${id}`;
             }
         }
-
-        // JavaScript to handle dropdown menu
         
     </script>
 </body>
