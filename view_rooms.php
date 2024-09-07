@@ -1,5 +1,5 @@
 <?php
-//LIST OF ROOMS
+// LIST OF ROOMS
 session_start();
 
 // Check if the user is logged in, if not redirect to login page
@@ -24,8 +24,7 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>View Rooms</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="JRSLCSS/view_rooms.css">
-    <link rel="stylesheet" href="JRSLCSS/dashboard.css">
+    <link rel="stylesheet" href="JRSLCSS/view_rooms.css"> <!-- Updated to new_design.css -->
 </head>
 <body>
 
@@ -37,44 +36,32 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <h2>View Rooms</h2>
 
         <!-- Add Room button -->
-        <a href="add_room.php" class="button add-button">Add Room</a>
+        <a href="add_room.php" class="button add-button">+ Add Room</a>
 
-        <!-- Room list table -->
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Unit Number</th>
-                    <th>Rent</th>
-                    <th>Capacity</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($rooms as $room): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($room['id']); ?></td>
-                        <td><?php echo htmlspecialchars($room['unit_number']); ?></td>
-                        <td>$<?php echo htmlspecialchars($room['rent']); ?></td>
-                        <td><?php echo htmlspecialchars($room['capacity']); ?></td>
-                        <td>
-                            <a href="view_room.php?id=<?php echo $room['id']; ?>" class="button view-button">View</a>
-                            <button class="button delete-button" onclick="confirmDelete(<?php echo $room['id']; ?>)">Delete</button>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+        <!-- Room list in grid display -->
+        <div class="room-grid">
+            <?php foreach ($rooms as $room): ?>
+                <div class="room-card">
+                    <h3><?php echo htmlspecialchars($room['unit_number']); ?></h3>
+                    <p><i class="fas fa-dollar-sign"></i> <?php echo htmlspecialchars($room['rent']); ?></p>
+                    <p><i class="fas fa-users"></i> Capacity: <?php echo htmlspecialchars($room['capacity']); ?></p>
+                    <div class="room-actions">
+                        <a href="view_room.php?id=<?php echo $room['id']; ?>" class="button view-button">View</a>
+                        <button class="button delete-button" onclick="confirmDelete(<?php echo $room['id']; ?>)">Delete</button>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
 
         <a href="dashboard.php" class="back-button">Back to Dashboard</a>
     </div>
+
     <script>
         function confirmDelete(id) {
             if (confirm("Are you sure you want to delete this room?")) {
                 window.location.href = `delete_room.php?id=${id}`;
             }
         }
-        
     </script>
 </body>
 </html>
