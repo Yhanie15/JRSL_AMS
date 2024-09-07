@@ -1,114 +1,113 @@
+/* Main content */
 .main-content {
-    padding: 20px; /* Adjust padding as needed */
+ padding: 50px;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+h2 {
+    margin-bottom: 20px;
 }
 
-table, th, td {
-    border: 1px solid #ddd;
-}
-
-th, td {
-    padding: 10px;
-    text-align: left;
-}
-
-.button {
-    background-color: #4CAF50; /* Green */
-    border: none;
-    color: white;
-    padding: 8px 16px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 14px;
-    margin-right: 5px;
-    cursor: pointer;
-    border-radius: 3px;
-}
-
-.button.delete-button {
-    background-color: #f44336; /* Red */
-}
-
-.button.view-button {
-    background-color: #007bff; /* Blue */
-}
-
-.button:hover {
-    background-color: #3e8e41;
-}
-
-.button.delete-button:hover {
-    background-color: #e57373;
-}
-
-.button.view-button:hover {
-    background-color: #0056b3;
-}
-
-.back-button {
-    margin-top: 20px;
-    background-color: #ccc;
-    padding: 8px 16px;
-    text-decoration: none;
-    color: #333;
-    border-radius: 3px;
-}
-
-.back-button:hover {
-    background-color: #999;
-}
-
+/* Add Room button */
 .add-button {
-    margin-top: 20px;
-    background-color: #007bff; /* Blue */
-    padding: 8px 16px;
-    text-decoration: none;
+    background-color: #ff3b3b;
     color: white;
-    border-radius: 3px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    margin-bottom: 20px;
+    display: inline-block;
 }
 
 .add-button:hover {
+    background-color: #b3002d;
+}
+
+/* Room grid layout */
+.room-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Responsive grid */
+    gap: 20px;
+}
+
+/* Individual room card */
+.room-card {
+    background-color: #5a554d;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.room-card:hover {
+    transform: translateY(-5px);
+}
+
+.room-card h3 {
+    font-size: 1.5rem;
+    color:whitesmoke;
+}
+
+.room-card p {
+    margin: 10px 0;
+    color: whitesmoke;
+    font-size: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.room-card i {
+    font-size: 1.2rem;
+}
+
+/* Room actions */
+.room-actions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* View and Delete buttons */
+.view-button, .delete-button {
+    padding: 8px 12px;
+    border-radius: 4px;
+    text-decoration: none;
+    color: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: none;
+}
+
+.view-button {
+    background-color: #007bff;
+}
+
+.view-button:hover {
     background-color: #0056b3;
 }
 
-.sidebar {
-    height: 100%;
-    width: 250px;
-    position: fixed;
-    z-index: 1;
-    top: 0;
-    left: 0;
-    background-color: #111;
-    overflow-x: hidden;
-    padding-top: 20px;
+.delete-button {
+    background-color: #dc3545;
 }
 
-.sidebar a {
-    padding: 10px 15px;
-    text-decoration: none;
-    font-size: 18px;
-    color: #818181;
-    display: block;
+.delete-button:hover {
+    background-color: #c82333;
 }
 
-.sidebar a:hover {
-    color: #f1f1f1;
-}
-
-.sidebar .sidebar-header {
-    padding: 10px 15px;
-    text-align: center;
-    background: #111;
+/* Back button */
+.back-button {
+    display: inline-block;
+    margin-top: 20px;
+    background-color: #6c757d;
     color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    text-decoration: none;
 }
 
-.main-content {
-    margin-left: 250px; /* Same width as the sidebar */
-    padding: 20px;
+.back-button:hover {
+    background-color: #5a6268;
 }

@@ -41,57 +41,68 @@ if (!$room) {
     <title>View Room <?php echo htmlspecialchars($room['unit_number']); ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="styles.css"> 
-    <link rel="stylesheet" href="JRSLCSS/view_room.css">
-    <link rel="stylesheet" href="JRSLCSS/dashboard.css">
-
+    <link rel="stylesheet" href="JRSLCSS/view_room.css"> <!-- New CSS file -->
 </head>
 <body>
 
     <!-- Sidebar navigation -->
     <?php include 'sidebar.php'; ?>
-    
+
     <!-- Page content -->
     <div class="main-content">
-        <div class="room-info">
-            <h2>Room Information</h2>
-            <p><strong>ID:</strong> <?php echo htmlspecialchars($room['id']); ?></p>
-            <p><strong>Unit Number:</strong> <?php echo htmlspecialchars($room['unit_number']); ?></p>
-            <p><strong>Rent:</strong> PHP<?php echo htmlspecialchars($room['rent']); ?></p>
-            <p><strong>Capacity:</strong> <?php echo htmlspecialchars($room['capacity']); ?></p>
-            <a href="edit_room.php?id=<?php echo $room['id']; ?>" class="button edit-button">Edit Room</a>
-            <a href="view_rooms.php" class="back-button">Back to Rooms List</a>
-        </div>
+        <a href="view_rooms.php" class="back-link"><i class="fas fa-arrow-left"></i> Back to View Rooms</a>
+        
+        <div class="room-container">
+            <div class="room-info">
+                <h2>Room Information</h2>
+                <div class="info-row">
+                    <div class="info-item">
+                        <i class="fas fa-door-closed"></i>
+                        <p>Unit Number: <?php echo htmlspecialchars($room['unit_number']); ?></p>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-coins"></i>
+                        <p>Rent Fee: PHP<?php echo htmlspecialchars($room['rent']); ?></p>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-users"></i>
+                        <p>Capacity: <?php echo htmlspecialchars($room['capacity']); ?></p>
+                    </div>
+                </div>
+                <a href="edit_room.php?id=<?php echo $room['id']; ?>" class="button edit-room">Edit Room</a>
+            </div>
 
-        <?php if ($room['tenant_id']): ?>
-            <div class="tenant-list">
-                <h2>Tenants in this Room</h2>
+            <div class="tenant-info">
+                <h2>Tenant in this Room</h2>
                 <table>
                     <thead>
                         <tr>
                             <th>ID</th>
                             <th>Name</th>
-                            <th>Phone Number</th>
-                            <th>Actions</th>
+                            <th>Contact Number</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php do { ?>
+                        <?php if ($room['tenant_id']) { ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($room['tenant_id']); ?></td>
                                 <td><?php echo htmlspecialchars($room['first_name'] . ' ' . $room['last_name']); ?></td>
                                 <td><?php echo htmlspecialchars($room['phone']); ?></td>
                                 <td>
-                                   <a href="edit_tenant.php?id=<?php echo $room['tenant_id']; ?>" class="button">Edit Tenant</a>
+                                    <a href="edit_tenant.php?id=<?php echo $room['tenant_id']; ?>" class="button edit-tenant">Edit Tenant</a>
                                 </td>
                             </tr>
-                        <?php } while ($room = $stmt->fetch(PDO::FETCH_ASSOC)); ?>
+                        <?php } else { ?>
+                            <tr>
+                                <td colspan="4">No tenants found for this room.</td>
+                            </tr>
+                        <?php } ?>
                     </tbody>
                 </table>
             </div>
-        <?php endif; ?>
-
+        </div>
     </div>
-
 
 </body>
 </html>
