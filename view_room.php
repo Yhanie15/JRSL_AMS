@@ -40,8 +40,8 @@ if (!$room) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Room <?php echo htmlspecialchars($room['unit_number']); ?></title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="styles.css"> 
-    <link rel="stylesheet" href="JRSLCSS/view_room.css"> <!-- New CSS file -->
+   <!-- <link rel="stylesheet" href="styles.css">-->
+   <link rel="stylesheet" href="JRSLCSS/view_room.css"> <!-- New CSS file -->
 </head>
 <body>
 
@@ -49,7 +49,7 @@ if (!$room) {
     <?php include 'sidebar.php'; ?>
 
     <!-- Page content -->
-    <div class="main-content">
+    <div class="main-content" style="margin-left: 320px; margin-right: 80px; margin-top: 30px;" >
         <a href="view_rooms.php" class="back-link"><i class="fas fa-arrow-left"></i> Back to View Rooms</a>
         
         <div class="room-container">

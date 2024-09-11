@@ -32,7 +32,7 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <?php include 'sidebar.php'; ?>
 
     <!-- Page content -->
-    <div class="main-content">
+    <div class="main-content" style="margin-left: 320px; margin-right: 80px; margin-top: 30px; ">
         <h2>View Rooms</h2>
 
         <!-- Add Room button -->
@@ -52,8 +52,7 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             <?php endforeach; ?>
         </div>
-
-        <a href="dashboard.php" class="back-button">Back to Dashboard</a>
+        
     </div>
 
     <script>
