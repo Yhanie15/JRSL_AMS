@@ -63,8 +63,6 @@ $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php endforeach; ?>
             </tbody>
         </table>
-
-        <a href="dashboard.php" class="back-button">Back to Dashboard</a>
     </div>
 </body>
 </html>
