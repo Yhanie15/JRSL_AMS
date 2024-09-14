@@ -53,7 +53,6 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endforeach; ?>
         </div>
 
-        <a href="dashboard.php" class="back-button">Back to Dashboard</a>
     </div>
 
     <script>

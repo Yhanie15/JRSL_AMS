@@ -20,7 +20,7 @@ $tenant_id = $_GET['id'];
 // Fetch tenant data with associated room details
 $stmt = $pdo->prepare("SELECT tenants.*, rooms.unit_number AS room_name 
                        FROM tenants 
-                       LEFT JOIN rooms ON tenants.unit_number = rooms.id 
+                       LEFT JOIN rooms ON tenants.unit_number = rooms.unit_number 
                        WHERE tenants.id = ?");
 $stmt->execute([$tenant_id]);
 $tenant = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -47,20 +47,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $emergency_contact_number = $_POST['emergency_contact_number'];
 
     // Update tenant information
-    $stmt = $pdo->prepare("UPDATE tenants SET last_name = ?, first_name = ?, middle_name = ?, email = ?, phone = ?, move_in_date = ?, unit_number = ?, gender = ?, address = ?, birthday = ?, emergency_name = ?, emergency_contact_number = ? WHERE id = ?");
-    $stmt->execute([$surname, $first_name, $middle_name, $email, $phone, $move_in_date, $unit_number, $gender, $address, $birthday, $emergency_name, $emergency_contact_number, $tenant_id]);
+    $stmt = $pdo->prepare("UPDATE tenants 
+                           SET last_name = ?, first_name = ?, middle_name = ?, email = ?, phone = ?, 
+                               move_in_date = ?, unit_number = ?, gender = ?, address = ?, 
+                               birthday = ?, emergency_name = ?, emergency_contact_number = ? 
+                           WHERE id = ?");
+    $isUpdated = $stmt->execute([$surname, $first_name, $middle_name, $email, $phone, $move_in_date, $unit_number, $gender, $address, $birthday, $emergency_name, $emergency_contact_number, $tenant_id]);
 
-    // Redirect to view tenant page
-    header("Location: view_tenant.php?id=" . $tenant_id);
-    exit();
+    if ($isUpdated) {
+        // Success: Redirect to tenant view
+        header("Location: view_tenant.php?id=" . $tenant_id);
+        exit();
+    } else {
+        // Error: Add error handling logic here
+        echo "Error updating tenant information.";
+    }
 }
 
 // Fetch room list for dropdown, including current tenant count and capacity
-$stmt = $pdo->query("SELECT r.id, r.unit_number, r.capacity, COUNT(t.unit_number) AS current_tenants
+$stmt = $pdo->query("SELECT r.id, r.unit_number, r.capacity, COUNT(t.id) AS current_tenants
                      FROM rooms r
-                     LEFT JOIN tenants t ON r.id = t.unit_number
-                     GROUP BY r.id");
+                     LEFT JOIN tenants t ON r.unit_number = t.unit_number
+                     GROUP BY r.id, r.unit_number, r.capacity");
 $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -72,7 +82,6 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="styles.css"> 
     <link rel="stylesheet" href="JRSLCSS/edit_tenant.css"> 
     <link rel="stylesheet" href="JRSLCSS/dashboard.css">
-
 </head>
 <body>
 
@@ -114,22 +123,23 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <?php foreach ($rooms as $room): ?>
                             <?php 
                                 // Calculate remaining capacity
-                               
                                 $remaining_capacity = $room['capacity'] - $room['current_tenants'];
 
-                                // Display only if the remaining capacity is more than 0
-                                if ($remaining_capacity > 0) :
+                                // Check if the room is already assigned to the current tenant
+                                $is_current_tenant_room = ($room['unit_number'] == $tenant['unit_number']);
+
+                                // Display room only if remaining capacity is more than 0 or it's the tenant's current room
+                                if ($remaining_capacity > 0 || $is_current_tenant_room) :
                             ?>
-                                <option value="<?php echo $room['id']; ?>"
-                                    <?php echo ($room['id'] == $tenant['unit_number']) ? 'selected' : ''; ?>>
-                                    <?php echo htmlspecialchars($room['unit_number'] ); ?>
+                                <option value="<?php echo $room['unit_number']; ?>"
+                                    <?php echo $is_current_tenant_room ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($room['unit_number']); ?>
                                 </option>
-                            <?php 
-                                endif; // End of check for remaining capacity
-                            ?>
+                            <?php endif; ?>
                         <?php endforeach; ?>
                     </select>
                 </div>
+
                 <div class="form-group">
                     <label for="gender">Gender:</label>
                     <select id="gender" name="gender" required>
@@ -158,8 +168,6 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <input type="submit" value="Save Changes">
                 </div>
             </form>
-            <a href="view_tenant.php?id=<?php echo $tenant_id; ?>" class="button">View Tenant</a>
-            <a href="view_tenants.php" class="back-button">Back to View Tenants</a>
         </div>
     </div>
 

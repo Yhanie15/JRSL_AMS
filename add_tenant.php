@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="date" id="birthday" name="birthday">
                 </div>
                 <div class="form-group">
-                    <label for="emergency_name">Emergency Contact Name:</label>
+                    <label for="emergency_contact_name">Emergency Contact Name:</label>
                     <input type="text" id="emergency_name" name="emergency_name">
                 </div>
                 <div class="form-group">
@@ -136,7 +136,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="submit" value="Add Tenant">
                 </div>
             </form>
-            <a href="view_tenants.php" class="back-button">Back to View Tenants</a>
+            
         </div>
     </div>
 

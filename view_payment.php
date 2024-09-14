@@ -55,11 +55,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         $stmt = $pdo->prepare("
-            INSERT INTO rent_payments (unit_number, payment_date, amount) 
+            INSERT INTO rent_payments (unit_number, payment_date, amount_paid) 
             VALUES (?, ?, ?)
         ");
         $stmt->execute([$unit_number, $payment_date, $amount]);
-        echo "Payment recorded successfully.";
+
+        // After payment, redirect back to rent.php to show updated payments
+        header("Location: rent.php");
+        exit();
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
     }
@@ -105,6 +108,7 @@ try {
     exit();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -221,7 +225,6 @@ try {
                 <button type="submit">Submit Payment</button>
             </form>
         </div>
-        <a href="rent.php" class="back-button">Back to Rent Page</a>
     </div>
 </body>
 </html>

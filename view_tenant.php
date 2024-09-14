@@ -68,7 +68,7 @@ if (!$tenant) {
             <p><strong>Emergency Contact Number:</strong> <?php echo htmlspecialchars($tenant['emergency_contact_number']); ?></p>
             <a href="edit_tenant.php?id=<?php echo $tenant['id']; ?>" class="button">Edit Tenant</a>
             <a href="#" onclick="confirmDelete(<?php echo $tenant['id']; ?>);" class="button delete-button">Delete Tenant</a>
-            <a href="view_tenants.php" class="back-button">Back to Tenants List</a>
+            
         </div>
 
         <script>

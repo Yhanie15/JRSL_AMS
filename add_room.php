@@ -61,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="submit" value="Add Room">
                 </div>
             </form>
-            <a href="view_rooms.php" class="back-button">Back to View Rooms</a>
+            
         </div>
     </div>
 </body>

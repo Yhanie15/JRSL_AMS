@@ -1,5 +1,5 @@
 <?php
-//DETAILS PER ROOM
+// DETAILS PER ROOM
 session_start();
 
 // Check if the user is logged in, if not redirect to login page
@@ -18,11 +18,8 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
 $room_id = $_GET['id'];
 
-// Fetch room data with associated tenants
-$stmt = $pdo->prepare("SELECT rooms.*, tenants.id as tenant_id, tenants.first_name, tenants.last_name, tenants.phone 
-                       FROM rooms 
-                       LEFT JOIN tenants ON rooms.unit_number = tenants.unit_number 
-                       WHERE rooms.id = ?");
+// Fetch room data
+$stmt = $pdo->prepare("SELECT * FROM rooms WHERE id = ?");
 $stmt->execute([$room_id]);
 $room = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -31,6 +28,11 @@ if (!$room) {
     header("Location: view_rooms.php");
     exit();
 }
+
+// Fetch all tenants with the same unit_number
+$stmt_tenants = $pdo->prepare("SELECT id as tenant_id, first_name, last_name, phone FROM tenants WHERE unit_number = ?");
+$stmt_tenants->execute([$room['unit_number']]);
+$tenants = $stmt_tenants->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -73,7 +75,7 @@ if (!$room) {
             </div>
 
             <div class="tenant-info">
-                <h2>Tenant in this Room</h2>
+                <h2>Tenants in this Room</h2>
                 <table>
                     <thead>
                         <tr>
@@ -84,16 +86,17 @@ if (!$room) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if ($room['tenant_id']) { ?>
+                        <?php if (count($tenants) > 0) { 
+                            foreach ($tenants as $tenant) { ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($room['tenant_id']); ?></td>
-                                <td><?php echo htmlspecialchars($room['first_name'] . ' ' . $room['last_name']); ?></td>
-                                <td><?php echo htmlspecialchars($room['phone']); ?></td>
+                                <td><?php echo htmlspecialchars($tenant['tenant_id']); ?></td>
+                                <td><?php echo htmlspecialchars($tenant['first_name'] . ' ' . $tenant['last_name']); ?></td>
+                                <td><?php echo htmlspecialchars($tenant['phone']); ?></td>
                                 <td>
-                                    <a href="edit_tenant.php?id=<?php echo $room['tenant_id']; ?>" class="button edit-tenant">Edit Tenant</a>
+                                    <a href="edit_tenant.php?id=<?php echo $tenant['tenant_id']; ?>" class="button edit-tenant">Edit Tenant</a>
                                 </td>
                             </tr>
-                        <?php } else { ?>
+                        <?php } } else { ?>
                             <tr>
                                 <td colspan="4">No tenants found for this room.</td>
                             </tr>
