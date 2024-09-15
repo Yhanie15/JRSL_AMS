@@ -1,18 +1,4 @@
 
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    /*background-color: #f4f4f9;*/
-    margin-top: 30px;
-}
-
-.main-content {
-    /*margin-left: 250px; /* Adjust based on your sidebar width */
-    padding: 20px;
-  
-}
-
 .back-link {
     color: #555;
     font-size: 16px;

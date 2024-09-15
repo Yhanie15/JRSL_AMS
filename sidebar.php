@@ -6,6 +6,7 @@
     <title>Document</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="styles.css"> <!-- Make sure styles.css is updated to include nav styles -->
+    <link rel="stylesheet" href="JRSLCSS/sidebar.css">
 </head>
 <body>
     <!-- Sidebar Toggle Button -->
