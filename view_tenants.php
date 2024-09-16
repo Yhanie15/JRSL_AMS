@@ -22,7 +22,6 @@ $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>View Tenants</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
-    
     <link rel="stylesheet" href="JRSLCSS/view_tenants.css"> <!-- Make sure styles.css is updated to include nav styles -->
 </head>
 <body>
