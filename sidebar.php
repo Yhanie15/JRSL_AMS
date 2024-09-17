@@ -34,7 +34,7 @@
                     
                 </ul>
             </li>
-
+            <li><a href="send_sms.php"><i class="fa fa-envelope"> </i> Send SMS</a></li>
             <li><a href="reports.php"><i class="fas fa-chart-line"></i> Reports</a></li>
             <li><a href="login/logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
         </ul>
