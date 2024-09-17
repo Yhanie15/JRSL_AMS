@@ -58,6 +58,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="JRSLCSS/view_room.css"> <!-- New CSS file -->
+    <style>
+        .notification {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            z-index: 1000;
+            transition: opacity 0.5s ease-out;
+        }
+        .notification.fade {
+            opacity: 0;
+        }
+    </style>
 </head>
 <body>
     <!-- Sidebar navigation -->
@@ -124,6 +141,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </div>
 
+    <!-- Notification message -->
+    <div id="notification" class="notification"></div>
+
     <!-- The Modal for Editing Room -->
     <div id="editRoomModal" class="modal">
         <div class="modal-content">
@@ -150,6 +170,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             var btn = document.getElementById("editRoomBtn");
             var span = document.getElementsByClassName("close")[0];
             var form = document.querySelector("#editRoomModal form");
+            var notification = document.getElementById("notification");
 
             btn.onclick = function() {
                 modal.style.display = "block";
@@ -179,7 +200,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     if (data.success) {
                         // Close the modal
                         modal.style.display = "none";
-                        alert(data.message);
+                        
+                        // Show the notification
+                        notification.textContent = data.message;
+                        notification.style.display = "block";
+                        
+                        // Fade out the notification
+                        setTimeout(function() {
+                            notification.classList.add("fade");
+                        }, 2000); // Wait for 2 seconds before starting to fade
+
+                        setTimeout(function() {
+                            notification.style.display = "none";
+                            notification.classList.remove("fade");
+                        }, 3000); // Fade out and hide the notification after 3 seconds
+                        
                         // Optionally, you can refresh or update the page content here
                         // Example: Update room info directly in the page (if needed)
                         document.querySelector('.room-info .info-item:nth-child(1) p').textContent = 'Unit Number: ' + document.getElementById('unit_number').value;
