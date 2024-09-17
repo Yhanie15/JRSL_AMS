@@ -83,7 +83,7 @@
 /* Show dropdown when hovered or clicked */
 .sidebar ul li .dropdown-content a:hover {
     background-color: #575757;
-    color: #f1f1f1;
+    color: #030303;
 }
 
 /* Modify hover for dropdown items to match the rest of the sidebar */

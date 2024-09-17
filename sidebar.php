@@ -16,7 +16,7 @@
     <div class="sidebar">
         <div class="sidebar-header">
             <!-- Logo or Header Image -->
-            <img src="images/jrsl logo without bg1.png" alt="Description of the image" style="width:100%; height:auto;">
+            <img src="images/jrsl logo without bg1.png" alt="Description of the image" style="width:70%; height:auto;">
         </div>
         <ul>
             <!-- Sidebar Menu Items with Icons -->
@@ -29,7 +29,9 @@
                 <a href="#"><i class="fas fa-file-invoice-dollar"></i> Bills & Payment</a>
                 <ul class="dropdown-content">
                     <li><a href="rent.php"><i class="fas fa-money-bill"></i> Rent</a></li>
-                    <li><a href="bills_payment.php"><i class="fas fa-receipt"></i> Bills</a></li>
+                    <li><a href="bills_payment.php"><i class="fas fa-water"></i> Water</a></li>
+                    <li><a href="#"><i class="fas fa-bolt"></i> Electricity</a></li>
+                    
                 </ul>
             </li>
 
