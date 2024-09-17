@@ -47,14 +47,15 @@
     });
 
     document.querySelectorAll('.sidebar .dropdown > a').forEach(function(item) {
-            item.addEventListener('click', function(e) {
-                let nextEl = item.nextElementSibling;
-                if(nextEl && nextEl.classList.contains('dropdown-content')) {
-                    e.preventDefault();
-                    nextEl.style.display = nextEl.style.display === 'block' ? 'none' : 'block';
-                }
-            });
+    item.addEventListener('click', function(e) {
+        let nextEl = item.nextElementSibling;
+        if (nextEl && nextEl.classList.contains('dropdown-content')) {
+            e.preventDefault();
+            nextEl.style.display = nextEl.style.display === 'block' ? 'none' : 'block';
+           }
         });
+    });
+
     </script>
 </body>
 </html>
