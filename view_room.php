@@ -44,8 +44,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $stmt = $pdo->prepare("UPDATE rooms SET unit_number = ?, rent = ?, capacity = ? WHERE id = ?");
     $stmt->execute([$unit_number, $rent, $capacity, $room_id]);
 
-    // Redirect to view_rooms.php after update, with room ID as a hash for scroll
-    header("Location: view_room.php#room_$room_id");
+    // Return success message
+    echo json_encode(['success' => true, 'message' => 'Room updated successfully!']);
     exit();
 }
 ?>
@@ -145,28 +145,56 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script>
-        // Get modal element
-        var modal = document.getElementById("editRoomModal");
-        var btn = document.getElementById("editRoomBtn");
-        var span = document.getElementsByClassName("close")[0];
+        document.addEventListener("DOMContentLoaded", function() {
+            var modal = document.getElementById("editRoomModal");
+            var btn = document.getElementById("editRoomBtn");
+            var span = document.getElementsByClassName("close")[0];
+            var form = document.querySelector("#editRoomModal form");
 
-        // When the user clicks the button, open the modal 
-        btn.onclick = function() {
-            modal.style.display = "block";
-        }
+            btn.onclick = function() {
+                modal.style.display = "block";
+            }
 
-        // When the user clicks on <span> (x), close the modal
-        span.onclick = function() {
-            modal.style.display = "none";
-        }
-
-        // When the user clicks anywhere outside of the modal, close it
-        window.onclick = function(event) {
-            if (event.target == modal) {
+            span.onclick = function() {
                 modal.style.display = "none";
             }
-        }
-    </script>
 
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            form.onsubmit = function(event) {
+                event.preventDefault(); // Prevent the default form submission
+
+                var formData = new FormData(form);
+
+                fetch("<?php echo htmlspecialchars($_SERVER['PHP_SELF']) . '?id=' . $room_id; ?>", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Close the modal
+                        modal.style.display = "none";
+                        alert(data.message);
+                        // Optionally, you can refresh or update the page content here
+                        // Example: Update room info directly in the page (if needed)
+                        document.querySelector('.room-info .info-item:nth-child(1) p').textContent = 'Unit Number: ' + document.getElementById('unit_number').value;
+                        document.querySelector('.room-info .info-item:nth-child(2) p').textContent = 'Rent Fee: PHP' + document.getElementById('rent').value;
+                        document.querySelector('.room-info .info-item:nth-child(3) p').textContent = 'Capacity: ' + document.getElementById('capacity').value;
+                    } else {
+                        alert("An error occurred.");
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert("An error occurred.");
+                });
+            }
+        });
+    </script>
 </body>
 </html>
