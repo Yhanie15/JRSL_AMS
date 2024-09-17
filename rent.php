@@ -104,42 +104,63 @@ try {
             </thead>
             <tbody>
             <?php foreach ($rooms as $room): 
-    // Calculate the number of months since the tenant moved in
-    $move_in_date = new DateTime($room['move_in_date']);
-    $current_date = new DateTime();
-    $months_stayed = $move_in_date->diff($current_date)->m + ($move_in_date->diff($current_date)->y * 12);
-    
-    // Calculate the total rent due up to the current date
-    $total_rent_due = $months_stayed * $room['rent_per_month'];
-    
-    // Determine the due date (assuming rent is due at the start of every month)
-    $due_date = date('Y-m-d', strtotime($room['move_in_date'] . ' + ' . ($months_stayed + 1) . ' months'));
+        // Calculate the number of months since the tenant moved in
+        $move_in_date = new DateTime($room['move_in_date']);
+        $current_date = new DateTime();
+        $months_stayed = $move_in_date->diff($current_date)->m + ($move_in_date->diff($current_date)->y * 12);
+        
+        // Calculate the total rent due up to the current date
+        $total_rent_due = $months_stayed * $room['rent_per_month'];
+        
+        // Determine the due date (assuming rent is due at the start of every month)
+        $due_date = date('Y-m-d', strtotime($room['move_in_date'] . ' + ' . ($months_stayed + 1) . ' months'));
 
-    // Get the rent status and total amount paid
-    $rent_status = getRentStatus($pdo, $room['unit_number'], $due_date);
-    $amount_paid = $rent_status['total_paid'];
+        // Get the rent status and total amount paid
+        $rent_status = getRentStatus($pdo, $room['unit_number'], $due_date);
+        $amount_paid = $rent_status['total_paid'];
 
-    // Calculate the amount still owed
-    $amount_still_owed = $total_rent_due - $amount_paid;
+        // Calculate the amount still owed
+        $amount_still_owed = $total_rent_due - $amount_paid;
 
-    $status = $amount_still_owed <= 0 ? 'Paid' : $rent_status['status'];
-?>
-<tr>
-    <td><?php echo htmlspecialchars($room['unit_number']); ?></td>
-    <td>PHP <?php echo htmlspecialchars($room['rent_per_month']); ?></td>
-    <td>PHP <?php echo htmlspecialchars($total_rent_due); ?></td>
-    <td>PHP <?php echo htmlspecialchars($amount_paid); ?></td>
-    <td>PHP <?php echo htmlspecialchars($amount_still_owed); ?></td>
-    <td><?php echo htmlspecialchars($due_date); ?></td>
-    <td><?php echo htmlspecialchars($status); ?></td>
-    <td>
-        <a href="view_payment.php?id=<?php echo $room['id']; ?>" class="button">View</a>
-    </td>
-</tr>
-<?php endforeach; ?>
+        $status = $amount_still_owed <= 0 ? 'Paid' : $rent_status['status'];
+        ?>
+        <tr>
+            <td><?php echo htmlspecialchars($room['unit_number']); ?></td>
+            <td>PHP <?php echo htmlspecialchars($room['rent_per_month']); ?></td>
+            <td>PHP <?php echo htmlspecialchars($total_rent_due); ?></td>
+            <td>PHP <?php echo htmlspecialchars($amount_paid); ?></td>
+            <td>PHP <?php echo htmlspecialchars($amount_still_owed); ?></td>
+            <td><?php echo htmlspecialchars($due_date); ?></td>
+            <td><?php echo htmlspecialchars($status); ?></td>
+            <td>
+            <button onclick="openModal(<?php echo $room['id']; ?>, '<?php echo $room['unit_number']; ?>')" class="button">View</button>
+            </td>
 
-            </tbody>
-        </table>
+
+        </tr>
+        <?php endforeach; ?>
+
+                </tbody>
+            </table>
+
+
+        <!-- Payment Update Modal -->
+        <div id="paymentModal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h3>Update Rent Payment for Room <span id="roomNumber">101</span></h3>
+                <form action="submit_payment.php" method="post">
+                    <input type="hidden" name="roomId" id="roomId" class="in">
+                    <label for="amount">Amount:</label>
+                    <input type="text" id="amount" name="amount" placeholder="Enter payment amount" class="in"><br>
+                    <label for="paymentDate">Payment Date:</label>
+                    <input type="date" id="paymentDate" name="paymentDate"class="in"><br>
+                    <input type="submit" value="Submit Payment" class="button">
+                    <button type="button" onclick="closeModal()" class="button red">Cancel</button>
+                </form>
+            </div>
+        </div>
+
     </div>
 
 <script>
@@ -164,6 +185,33 @@ try {
             }
         }
     }
+
+        function openModal(roomId, unitNumber) {
+        document.getElementById('roomId').value = roomId;
+        document.getElementById('roomNumber').textContent = unitNumber;
+        document.getElementById('paymentModal').style.display = "block";
+    }
+
+    function closeModal() {
+        document.getElementById('paymentModal').style.display = "none";
+    }
+
+    // Get the <span> element that closes the modal
+    var span = document.getElementsByClassName("close")[0];
+
+    // When the user clicks on <span> (x), close the modal
+    span.onclick = function() {
+        closeModal();
+    }
+
+    // When the user clicks anywhere outside of the modal, close it
+    window.onclick = function(event) {
+        var modal = document.getElementById('paymentModal');
+        if (event.target == modal) {
+            closeModal();
+        }
+    }
+
 </script>
 
 </body>
