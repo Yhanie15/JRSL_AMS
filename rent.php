@@ -70,9 +70,9 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rent Page</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="styles.css"> <!-- Ensure this stylesheet exists -->
-    
-    <link rel="stylesheet" href="JRSLCSS/rent.css"> 
+    <!--<link rel="stylesheet" href="styles.css">  Ensure this stylesheet exists -->
+    <link rel="stylesheet" href="JRSLCSS/rent.css">
+
 </head>
 <body>
 
@@ -133,7 +133,7 @@ try {
             <td><?php echo htmlspecialchars($due_date); ?></td>
             <td><?php echo htmlspecialchars($status); ?></td>
             <td>
-            <button onclick="openModal(<?php echo $room['id']; ?>, '<?php echo $room['unit_number']; ?>')" class="button">View</button>
+            <button onclick="openModal(<?php echo $room['id']; ?>, '<?php echo $room['unit_number']; ?>')" class="button">Update Payment</button>
             </td>
 
 
