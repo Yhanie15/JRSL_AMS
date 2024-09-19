@@ -47,7 +47,13 @@ try {
                 <h1>Welcome to Admin Dashboard</h1>
                 <div class="header-icons">
                     <i class="fas fa-bell"></i>
-                    <i class="fas fa-user-circle"></i>
+                    <div class="dropdown">
+                      <i class="fas fa-user-circle" onclick="toggleDropdown()"></i>
+                      <div id="profileDropdown" class="dropdown-content">
+                         <a href="change_password.php">View Profile</a>
+                         <a href="view_profile.php">Settings</a>
+                     </div>
+                   </div>
                 </div>
             </div>
 
@@ -167,6 +173,29 @@ try {
                 }
             }
         });
+
+        function toggleDropdown() {
+    var dropdown = document.getElementById("profileDropdown");
+    if (dropdown.style.display === "block") {
+        dropdown.style.display = "none";
+    } else {
+        dropdown.style.display = "block";
+    }
+}
+
+// Hide the dropdown if clicked outside
+window.onclick = function(event) {
+    if (!event.target.matches('.fas.fa-user-circle')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        for (var i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.style.display === "block") {
+                openDropdown.style.display = "none";
+            }
+        }
+    }
+}
+
     </script>
 </body>
 </html>

@@ -80,15 +80,14 @@
     padding: 5px 0;
 }
 
-/* Show dropdown when hovered or clicked */
-.sidebar ul li .dropdown-content a:hover {
-    background-color: #575757;
-    color: #f1f1f1;
+/* Remove hover effect from dropdown items */
+.sidebar ul li a.dropdown:hover {
+    background-color: inherit;
 }
 
-/* Modify hover for dropdown items to match the rest of the sidebar */
-.sidebar ul li a.dropdown:hover {
-    background-color: #575757;
+/* Remove hover-based dropdown functionality */
+.sidebar ul li a.dropdown:hover + .dropdown-content {
+    display: none;
 }
 
 /* Dropdown arrow */
