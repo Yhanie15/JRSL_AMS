@@ -30,6 +30,8 @@
                 <ul class="dropdown-content">
                     <li><a href="rent.php"><i class="fas fa-money-bill"></i> Rent</a></li>
                     <li><a href="bills_payment.php"><i class="fas fa-receipt"></i> Bills</a></li>
+                    <!-- New Water option under Bills -->
+                    <li><a href="water_payment.php"><i class="fas fa-tint"></i> Water</a></li>
                 </ul>
             </li>
             <li><a href="send_sms.php"><i class="fa fa-envelope"> </i> Send SMS</a></li>
@@ -39,20 +41,22 @@
     </div>
 
     <script>
+    // Toggle sidebar visibility
     document.getElementById('sidebar-toggle').addEventListener('click', function() {
         const sidebar = document.querySelector('.sidebar');
         sidebar.classList.toggle('open');
     });
 
+    // Handle dropdown toggle
     document.querySelectorAll('.sidebar .dropdown > a').forEach(function(item) {
-            item.addEventListener('click', function(e) {
-                let nextEl = item.nextElementSibling;
-                if(nextEl && nextEl.classList.contains('dropdown-content')) {
-                    e.preventDefault();
-                    nextEl.style.display = nextEl.style.display === 'block' ? 'none' : 'block';
-                }
-            });
+        item.addEventListener('click', function(e) {
+            let nextEl = item.nextElementSibling;
+            if (nextEl && nextEl.classList.contains('dropdown-content')) {
+                e.preventDefault();
+                nextEl.style.display = nextEl.style.display === 'block' ? 'none' : 'block';
+            }
         });
+    });
     </script>
 </body>
 </html>
