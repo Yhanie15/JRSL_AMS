@@ -10,8 +10,6 @@ if (!isset($_SESSION['username'])) {
     exit();
 }
 
-// The rest of your code continues here...
-
 // Function to get the total amount paid and the status of rent payment
 function getRentStatus($pdo, $unit_number, $due_date) {
     try {
@@ -39,21 +37,73 @@ function getRentStatus($pdo, $unit_number, $due_date) {
     }
 }
 
+// Function to get the last payment date if applicable
+function getLastPaymentDate($pdo, $unit_number) {
+    try {
+        // Prepare the SQL query to get the most recent payment date
+        $stmt = $pdo->prepare("SELECT MAX(payment_date) AS last_payment_date FROM rent_payments WHERE unit_number = ?");
+        $stmt->execute([$unit_number]);
+        $payment = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Return the last payment date or 'N/A' if there is no payment
+        return $payment && $payment['last_payment_date'] ? $payment['last_payment_date'] : 'N/A';
+    } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+    }
+}
+
+// Function to save the payment transaction
+function savePaymentTransaction($pdo, $unit_number, $amount_paid, $payment_date) {
+    try {
+        // Prepare the SQL query to insert the payment details into rent_payments table
+        $stmt = $pdo->prepare("INSERT INTO rent_payments (unit_number, amount_paid, payment_date) VALUES (?, ?, ?)");
+        $stmt->execute([$unit_number, $amount_paid, $payment_date]);
+
+        return "Payment saved successfully!";
+    } catch (PDOException $e) {
+        return "Error: " . $e->getMessage();
+    }
+}
+
+// Handle the payment form submission
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST['roomId'], $_POST['amount'], $_POST['paymentDate'])) {
+        $roomId = $_POST['roomId'];
+        $amount = $_POST['amount'];
+        $paymentDate = $_POST['paymentDate'];
+
+        // Fetch the unit number for the given room ID
+        $stmt = $pdo->prepare("SELECT unit_number FROM rooms WHERE id = ?");
+        $stmt->execute([$roomId]);
+        $room = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($room) {
+            $unit_number = $room['unit_number'];
+
+            // Save the payment transaction
+            $result = savePaymentTransaction($pdo, $unit_number, $amount, $paymentDate);
+
+            // Display success or error message
+            echo "<script>alert('" . $result . "');</script>";
+        }
+    }
+}
+
 try {
     // Fetch room data
     $stmt = $pdo->query("
         SELECT 
-            rooms.id, 
-            rooms.unit_number, 
-            rooms.rent AS rent_per_month,
-            COALESCE(SUM(bills.water_bill + bills.electricity_bill), 0) AS total_bills,
-            MAX(tenant_move_in.move_in_date) AS move_in_date,
-            tenants.move_in_date AS tenant_move_in_date
-        FROM rooms
-        LEFT JOIN bills ON rooms.unit_number = bills.unit_number
-        LEFT JOIN (SELECT unit_number, move_in_date FROM tenants GROUP BY unit_number) AS tenant_move_in ON rooms.unit_number = tenant_move_in.unit_number
-        LEFT JOIN tenants ON rooms.unit_number = tenants.unit_number
-        GROUP BY rooms.id, rooms.unit_number, rooms.rent
+        rooms.id, 
+        rooms.unit_number, 
+        rooms.rent AS rent_per_month,
+        COALESCE(SUM(bills.water_bill + bills.electricity_bill), 0) AS total_bills,
+        MAX(tenant_move_in.move_in_date) AS move_in_date,
+        tenants.move_in_date AS tenant_move_in_date
+    FROM rooms
+    LEFT JOIN bills ON rooms.unit_number = bills.unit_number
+    LEFT JOIN (SELECT unit_number, move_in_date FROM tenants GROUP BY unit_number) AS tenant_move_in ON rooms.unit_number = tenant_move_in.unit_number
+    LEFT JOIN tenants ON rooms.unit_number = tenants.unit_number
+    GROUP BY rooms.id, rooms.unit_number, rooms.rent
     ");
     $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -70,8 +120,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rent Page</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
-    <link rel="stylesheet" href="styles.css"> <!-- Ensure this stylesheet exists -->
-    
+    <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="JRSLCSS/rent.css"> 
 </head>
 <body>
@@ -94,11 +143,10 @@ try {
                 <tr>
                     <th>Unit Number</th>
                     <th>Monthly Rent</th>
-                    <th>Total Rent Due</th>
-                    <th>Amount Paid</th>
-                    <th>Amount Still Owed</th>
                     <th>Due Date</th>
+                    <th>Last Payment</th>
                     <th>Status</th>
+                    <th>Balance</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -122,59 +170,86 @@ try {
         // Calculate the amount still owed
         $amount_still_owed = $total_rent_due - $amount_paid;
 
+        // Determine the payment status
         $status = $amount_still_owed <= 0 ? 'Paid' : $rent_status['status'];
-        ?>
-        <tr>
-            <td><?php echo htmlspecialchars($room['unit_number']); ?></td>
-            <td>PHP <?php echo htmlspecialchars($room['rent_per_month']); ?></td>
-            <td>PHP <?php echo htmlspecialchars($total_rent_due); ?></td>
-            <td>PHP <?php echo htmlspecialchars($amount_paid); ?></td>
-            <td>PHP <?php echo htmlspecialchars($amount_still_owed); ?></td>
-            <td><?php echo htmlspecialchars($due_date); ?></td>
-            <td><?php echo htmlspecialchars($status); ?></td>
-            <td>
-            <button onclick="openModal(<?php echo $room['id']; ?>, '<?php echo $room['unit_number']; ?>')" class="button">View</button>
-            </td>
+        $balance = max(0, $total_rent_due - $amount_paid);
 
+        // Get the last payment date
+        $last_payment_date = getLastPaymentDate($pdo, $room['unit_number']);
+    ?>
+            <tr>
+                <td><?php echo htmlspecialchars($room['unit_number']); ?></td>
+                <td>PHP <?php echo htmlspecialchars($room['rent_per_month']); ?></td>
+                <td><?php echo htmlspecialchars($due_date); ?></td>
+                <td><?php echo htmlspecialchars($last_payment_date); ?></td> <!-- Display the last payment date -->
+                <td><?php echo htmlspecialchars($status); ?></td>
+                <td>PHP <?php echo number_format($balance, 2); ?></td>
+                <td>
+                <a href="rent_details.php?unit_number=<?php echo $room['unit_number']; ?>" class="button">View</a>
+                </td>
+            </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 
-        </tr>
-        <?php endforeach; ?>
-
-                </tbody>
-            </table>
-
-
-        <!-- Payment Update Modal -->
-        <div id="paymentModal" class="modal">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <h3>Update Rent Payment for Room <span id="roomNumber">101</span></h3>
-                <form action="submit_payment.php" method="post">
-                    <input type="hidden" name="roomId" id="roomId" class="in">
-                    <label for="amount">Amount:</label>
-                    <input type="text" id="amount" name="amount" placeholder="Enter payment amount" class="in"><br>
-                    <label for="paymentDate">Payment Date:</label>
-                    <input type="date" id="paymentDate" name="paymentDate"class="in"><br>
-                    <input type="submit" value="Submit Payment" class="button">
-                    <button type="button" onclick="closeModal()" class="button red">Cancel</button>
-                </form>
-            </div>
+    <!-- Rent Details Section (Hidden by default) -->
+    <div id="rentDetails" style="display: none;">
+        <h2>Rent Details</h2>
+        
+        <!-- Quick Search -->
+        <div>
+            <input type="text" placeholder="Quick Search" id="searchRentDetails">
+            <button onclick="openAddPaymentModal()">+ Add Payment</button>
         </div>
 
+        <!-- Rent Balances Table -->
+        <h3>Rent Balances</h3>
+        <table id="rentBalancesTable">
+            <thead>
+                <tr>
+                    <th>Monthly Rate</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamic rows will be inserted here -->
+            </tbody>
+        </table>
+        <div>
+            <strong>Total Balance:</strong> PHP <span id="totalBalance">0.00</span>
+        </div>
+
+        <!-- Payment History Table -->
+        <h3>Payment History</h3>
+        <table id="paymentHistoryTable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Date Time Added</th>
+                    <th>Month Of</th>
+                    <th>Amount</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Dynamic payment history rows will be inserted here -->
+            </tbody>
+        </table>
     </div>
 
 <script>
     function searchTable() {
-        // Declare variables
         var input, filter, table, tr, td, i, txtValue;
         input = document.getElementById("searchInput");
         filter = input.value.toUpperCase();
         table = document.getElementById("roomsTable");
         tr = table.getElementsByTagName("tr");
 
-        // Loop through all table rows, and hide those who don't match the search query
         for (i = 0; i < tr.length; i++) {
-            td = tr[i].getElementsByTagName("td")[0]; // Assumes searching by first column
+            td = tr[i].getElementsByTagName("td")[0];
             if (td) {
                 txtValue = td.textContent || td.innerText;
                 if (txtValue.toUpperCase().indexOf(filter) > -1) {
@@ -186,33 +261,87 @@ try {
         }
     }
 
-        function openModal(roomId, unitNumber) {
-        document.getElementById('roomId').value = roomId;
-        document.getElementById('roomNumber').textContent = unitNumber;
-        document.getElementById('paymentModal').style.display = "block";
+    function openRentDetails(roomId, unitNumber) {
+        // Hide the main content and show the rent details
+        document.querySelector('.main-content').style.display = 'none';
+        document.getElementById('rentDetails').style.display = 'block';
+        
+        // Load Rent Balances for the unit
+        fetchRentBalances(roomId, unitNumber);
+
+        // Load Payment History for the unit
+        fetchPaymentHistory(roomId);
     }
 
-    function closeModal() {
-        document.getElementById('paymentModal').style.display = "none";
+    function fetchRentBalances(roomId, unitNumber) {
+        // You can implement an AJAX call here to fetch rent balances for the tenant
+        // Placeholder for now
+        const rentBalances = [
+            { rate: 10000, date: '2024-07-01', status: 'Unpaid' },
+            { rate: 10000, date: '2024-08-01', status: 'Partial Payment' },
+        ];
+
+        // Clear existing rows
+        const rentBalancesTableBody = document.querySelector('#rentBalancesTable tbody');
+        rentBalancesTableBody.innerHTML = '';
+
+        let totalBalance = 0;
+
+        // Populate table
+        rentBalances.forEach((balance, index) => {
+            totalBalance += balance.rate;
+
+            rentBalancesTableBody.innerHTML += `
+                <tr>
+                    <td>PHP ${balance.rate}</td>
+                    <td>${balance.date}</td>
+                    <td>${balance.status}</td>
+                    <td><button>Edit</button></td>
+                </tr>
+            `;
+        });
+
+        // Set total balance
+        document.getElementById('totalBalance').textContent = totalBalance.toFixed(2);
     }
 
-    // Get the <span> element that closes the modal
-    var span = document.getElementsByClassName("close")[0];
+    function fetchPaymentHistory(roomId) {
+        // You can implement an AJAX call here to fetch payment history for the tenant
+        // Placeholder for now
+        const paymentHistory = [
+            { id: 1, dateTime: '2024-07-10', monthOf: 'July 2024', amount: 4000 },
+            { id: 2, dateTime: '2024-08-05', monthOf: 'August 2024', amount: 6000 },
+        ];
 
-    // When the user clicks on <span> (x), close the modal
-    span.onclick = function() {
-        closeModal();
+        // Clear existing rows
+        const paymentHistoryTableBody = document.querySelector('#paymentHistoryTable tbody');
+        paymentHistoryTableBody.innerHTML = '';
+
+        // Populate table
+        paymentHistory.forEach((payment, index) => {
+            paymentHistoryTableBody.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${payment.dateTime}</td>
+                    <td>${payment.monthOf}</td>
+                    <td>PHP ${payment.amount}</td>
+                    <td><button>Edit</button></td>
+                </tr>
+            `;
+        });
     }
 
-    // When the user clicks anywhere outside of the modal, close it
-    window.onclick = function(event) {
-        var modal = document.getElementById('paymentModal');
-        if (event.target == modal) {
-            closeModal();
-        }
+    function openAddPaymentModal() {
+        // Logic to open payment modal
     }
 
+    function submitPayment(roomId, paymentAmount, paymentDate) {
+        // Update rent balances and payment history dynamically after the payment is added
+        
+        // Example code (use AJAX to save payment and refresh the data)
+        fetchRentBalances(roomId);
+        fetchPaymentHistory(roomId);
+    }
 </script>
-
 </body>
 </html>
