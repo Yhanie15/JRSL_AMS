@@ -38,6 +38,9 @@ try {
 <body>
     <div class="container">
         <h1>Rental Payment Report</h1>
+        <div class="back-button">
+    <a href="dashboard.php" class="back-btn">Back to Dashboard</a>
+        </div>
         <table>
             <thead>
                 <tr>

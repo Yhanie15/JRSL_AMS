@@ -12,6 +12,8 @@ body {
     padding: 20px;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    min-height: 600px; /* Ensures enough space for content and the button */
 }
 
 h1 {
@@ -42,4 +44,22 @@ tr:nth-child(even) {
 
 tr:hover {
     background-color: #ddd;
+}
+
+.back-button {
+    position: relative; /* Reset positioning to flow within the document */
+    margin-top: 20px; /* Adds space between the table and the button */
+}
+
+.back-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.back-btn:hover {
+    background-color: #45a049;
 }
