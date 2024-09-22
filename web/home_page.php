@@ -8,15 +8,16 @@
     <link rel="stylesheet" href="web.css">
 </head>
 <body>
-
     <!-- Navigation Header -->
     <nav class="navbar">
         <div class="container">
             <!-- Put logo here: Replace with actual image path -->
-        <a class="navbar-brand" href="index.php">
-            <img src="img/jrslnobg1.png" alt="Logo" class="logo"> 
-            Apartment Rentals
-        </a>
+            <a class="navbar-brand" href="index.php">
+                <img src="img/jrslnobg1.png" alt="Logo" class="logo"> 
+                Apartment Rentals
+            </a>
+            <!-- Hamburger Menu for Mobile -->
+            <span class="navbar-toggle">&#9776;</span> <!-- Hamburger icon -->
             <ul class="navbar-nav">
                 <li><a href="index.php">Home</a></li>
                 <li><a href="#check-rooms">Check Rooms</a></li>
@@ -30,7 +31,7 @@
     <section class="hero">
         <div class="container">
             <h1>Welcome to JRSL Apartment Rentals</h1>  
-            <p>Welcome to your new home away from home located near universities, with swimming pool, gym, chapel, etc. </p>
+            <p>Welcome to your new home away from home located near universities, with swimming pool, gym, chapel, etc.</p>
             <p>Spacious living area and bedrooms. Excellent transportation access.</p>
             <a href="#check-rooms" class="btn">Check Available Rooms</a>
         </div>
@@ -79,5 +80,11 @@
         </div>
     </footer>
 
+    <!-- Script for Navbar Toggle -->
+    <script>
+        document.querySelector('.navbar-toggle').addEventListener('click', function() {
+            document.querySelector('.navbar-nav').classList.toggle('active');
+        });
+    </script>
 </body>
 </html>

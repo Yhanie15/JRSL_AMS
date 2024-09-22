@@ -91,23 +91,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 try {
     // Fetch room data
-    $stmt = $pdo->query("
-        SELECT 
-        rooms.id, 
-        rooms.unit_number, 
-        rooms.rent AS rent_per_month,
-        COALESCE(SUM(bills.water_bill + bills.electricity_bill), 0) AS total_bills,
-        MAX(tenant_move_in.move_in_date) AS move_in_date,
-        tenants.move_in_date AS tenant_move_in_date
-    FROM rooms
-    LEFT JOIN bills ON rooms.unit_number = bills.unit_number
-    LEFT JOIN (SELECT unit_number, move_in_date FROM tenants GROUP BY unit_number) AS tenant_move_in ON rooms.unit_number = tenant_move_in.unit_number
-    LEFT JOIN tenants ON rooms.unit_number = tenants.unit_number
-    GROUP BY rooms.id, rooms.unit_number, rooms.rent
-    ");
-    $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmt = $pdo->query("
+SELECT 
+    rooms.id, 
+    rooms.unit_number, 
+    rooms.rent AS rent_per_month,
+    COALESCE(SUM(bills.water_bill + bills.electricity_bill), 0) AS total_bills,
+    MAX(tenant_move_in.move_in_date) AS move_in_date,
+    tenants.move_in_date AS tenant_move_in_date
+FROM rooms
+LEFT JOIN bills ON rooms.unit_number = bills.unit_number
+LEFT JOIN (SELECT unit_number, move_in_date FROM tenants GROUP BY unit_number) AS tenant_move_in ON rooms.unit_number = tenant_move_in.unit_number
+LEFT JOIN tenants ON rooms.unit_number = tenants.unit_number
+GROUP BY rooms.id, rooms.unit_number, rooms.rent
+");
+$rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $currentDate = date('Y-m-d');
+$currentDate = date('Y-m-d');
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage();
 }
@@ -122,6 +122,7 @@ try {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="JRSLCSS/rent.css"> 
+
 </head>
 <body>
 
@@ -177,69 +178,24 @@ try {
         // Get the last payment date
         $last_payment_date = getLastPaymentDate($pdo, $room['unit_number']);
     ?>
-            <tr>
-                <td><?php echo htmlspecialchars($room['unit_number']); ?></td>
-                <td>PHP <?php echo htmlspecialchars($room['rent_per_month']); ?></td>
-                <td><?php echo htmlspecialchars($due_date); ?></td>
-                <td><?php echo htmlspecialchars($last_payment_date); ?></td> <!-- Display the last payment date -->
-                <td><?php echo htmlspecialchars($status); ?></td>
-                <td>PHP <?php echo number_format($balance, 2); ?></td>
-                <td>
-                <a href="rent_details.php?unit_number=<?php echo $room['unit_number']; ?>" class="button">View</a>
-                </td>
-            </tr>
+        <tr>
+        <td><?php echo htmlspecialchars($room['unit_number']); ?></td>
+        <td>PHP <?php echo htmlspecialchars($room['rent_per_month']); ?></td>
+        <td><?php echo htmlspecialchars($due_date); ?></td>
+        <td><?php echo htmlspecialchars($last_payment_date); ?></td> <!-- Display the last payment date -->
+        <td><?php echo htmlspecialchars($status); ?></td>
+        <td>PHP <?php echo number_format($balance, 2); ?></td>
+        <td>
+        <a href="rent_details.php?unit_number=<?php echo $room['unit_number']; ?>" class="button">View</a>
+        </td>
+    </tr>
             <?php endforeach; ?>
             </tbody>
         </table>
     </div>
 
-    <!-- Rent Details Section (Hidden by default) -->
-    <div id="rentDetails" style="display: none;">
-        <h2>Rent Details</h2>
+
         
-        <!-- Quick Search -->
-        <div>
-            <input type="text" placeholder="Quick Search" id="searchRentDetails">
-            <button onclick="openAddPaymentModal()">+ Add Payment</button>
-        </div>
-
-        <!-- Rent Balances Table -->
-        <h3>Rent Balances</h3>
-        <table id="rentBalancesTable">
-            <thead>
-                <tr>
-                    <th>Monthly Rate</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Dynamic rows will be inserted here -->
-            </tbody>
-        </table>
-        <div>
-            <strong>Total Balance:</strong> PHP <span id="totalBalance">0.00</span>
-        </div>
-
-        <!-- Payment History Table -->
-        <h3>Payment History</h3>
-        <table id="paymentHistoryTable">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Date Time Added</th>
-                    <th>Month Of</th>
-                    <th>Amount</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Dynamic payment history rows will be inserted here -->
-            </tbody>
-        </table>
-    </div>
-
 <script>
     function searchTable() {
         var input, filter, table, tr, td, i, txtValue;
