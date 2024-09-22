@@ -153,6 +153,13 @@ $currentDate = date('Y-m-d');
             </thead>
             <tbody>
             <?php foreach ($rooms as $room): 
+        // Determine if there is a tenant move-in date
+    if (empty($room['move_in_date'])) {
+        $status = 'N/A';
+        $due_date = '00-00-0000';
+        $last_payment_date = 'N/A';
+        $balance = 0;
+    } else {
         // Calculate the number of months since the tenant moved in
         $move_in_date = new DateTime($room['move_in_date']);
         $current_date = new DateTime();
@@ -177,7 +184,8 @@ $currentDate = date('Y-m-d');
 
         // Get the last payment date
         $last_payment_date = getLastPaymentDate($pdo, $room['unit_number']);
-    ?>
+    }
+?>
         <tr>
         <td><?php echo htmlspecialchars($room['unit_number']); ?></td>
         <td>PHP <?php echo htmlspecialchars($room['rent_per_month']); ?></td>
@@ -215,88 +223,6 @@ $currentDate = date('Y-m-d');
                 }
             }
         }
-    }
-
-    function openRentDetails(roomId, unitNumber) {
-        // Hide the main content and show the rent details
-        document.querySelector('.main-content').style.display = 'none';
-        document.getElementById('rentDetails').style.display = 'block';
-        
-        // Load Rent Balances for the unit
-        fetchRentBalances(roomId, unitNumber);
-
-        // Load Payment History for the unit
-        fetchPaymentHistory(roomId);
-    }
-
-    function fetchRentBalances(roomId, unitNumber) {
-        // You can implement an AJAX call here to fetch rent balances for the tenant
-        // Placeholder for now
-        const rentBalances = [
-            { rate: 10000, date: '2024-07-01', status: 'Unpaid' },
-            { rate: 10000, date: '2024-08-01', status: 'Partial Payment' },
-        ];
-
-        // Clear existing rows
-        const rentBalancesTableBody = document.querySelector('#rentBalancesTable tbody');
-        rentBalancesTableBody.innerHTML = '';
-
-        let totalBalance = 0;
-
-        // Populate table
-        rentBalances.forEach((balance, index) => {
-            totalBalance += balance.rate;
-
-            rentBalancesTableBody.innerHTML += `
-                <tr>
-                    <td>PHP ${balance.rate}</td>
-                    <td>${balance.date}</td>
-                    <td>${balance.status}</td>
-                    <td><button>Edit</button></td>
-                </tr>
-            `;
-        });
-
-        // Set total balance
-        document.getElementById('totalBalance').textContent = totalBalance.toFixed(2);
-    }
-
-    function fetchPaymentHistory(roomId) {
-        // You can implement an AJAX call here to fetch payment history for the tenant
-        // Placeholder for now
-        const paymentHistory = [
-            { id: 1, dateTime: '2024-07-10', monthOf: 'July 2024', amount: 4000 },
-            { id: 2, dateTime: '2024-08-05', monthOf: 'August 2024', amount: 6000 },
-        ];
-
-        // Clear existing rows
-        const paymentHistoryTableBody = document.querySelector('#paymentHistoryTable tbody');
-        paymentHistoryTableBody.innerHTML = '';
-
-        // Populate table
-        paymentHistory.forEach((payment, index) => {
-            paymentHistoryTableBody.innerHTML += `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td>${payment.dateTime}</td>
-                    <td>${payment.monthOf}</td>
-                    <td>PHP ${payment.amount}</td>
-                    <td><button>Edit</button></td>
-                </tr>
-            `;
-        });
-    }
-
-    function openAddPaymentModal() {
-        // Logic to open payment modal
-    }
-
-    function submitPayment(roomId, paymentAmount, paymentDate) {
-        // Update rent balances and payment history dynamically after the payment is added
-        
-        // Example code (use AJAX to save payment and refresh the data)
-        fetchRentBalances(roomId);
-        fetchPaymentHistory(roomId);
     }
 </script>
 </body>
