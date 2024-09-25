@@ -3,7 +3,7 @@
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root'); // Your database username
 define('DB_PASS', ''); // Your database password
-define('DB_NAME', 'apartment_management');
+define('DB_NAME', 'apartment_management'); // Change to your database name
 
 // PDO connection
 try {
@@ -16,13 +16,13 @@ try {
     die("Database connection failed: " . $e->getMessage());
 }
 
-// Fetch rental payments
+// Fetch electricity payments
 try {
-    $sql = "SELECT * FROM rent_payments ORDER BY payment_date DESC";
+    $sql = "SELECT * FROM electricity_payments ORDER BY payment_date DESC";
     $stmt = $pdo->query($sql);
     $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
-    die("Error fetching rental payments: " . $e->getMessage());
+    die("Error fetching electricity payments: " . $e->getMessage());
 }
 ?>
 
@@ -32,24 +32,22 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="JRSLCSS/rental_payment.css">
-    <title>Rental Payment Report</title>
+    <link rel="stylesheet" href="JRSLCSS/electricity_payment.css"> <!-- Change CSS file as needed -->
+    <title>Electricity Payment Report</title>
 </head>
 <body>
     <div class="container">
-        <h1>Rental Payment Report</h1>
-        <div class="back-button">
-    <a href="dashboard.php" class="back-btn">Back to Dashboard</a>
-        </div>
+        <h1>Electricity Payment Report</h1>
         <table>
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>Unit Number</th>
+                    <th>Electricity Rate (PHP/kWh)</th>
+                    <th>Electricity Consumption (kWh)</th>
+                    <th>Meter Read Date</th>
+                    <th>Payment Amount (PHP)</th>
                     <th>Payment Date</th>
-                    <th>Amount</th>
-                    <th>Amount Paid</th>
-                
                 </tr>
             </thead>
             <tbody>
@@ -58,15 +56,16 @@ try {
                     <tr>
                         <td><?php echo htmlspecialchars($payment['id']); ?></td>
                         <td><?php echo htmlspecialchars($payment['unit_number']); ?></td>
+                        <td><?php echo htmlspecialchars($payment['electricity_rate']); ?></td>
+                        <td><?php echo htmlspecialchars($payment['electricity_consumption']); ?></td>
+                        <td><?php echo htmlspecialchars($payment['meter_read_date']); ?></td>
+                        <td><?php echo htmlspecialchars(number_format($payment['payment_amount'], 2)); ?></td>
                         <td><?php echo htmlspecialchars($payment['payment_date']); ?></td>
-                        <td><?php echo htmlspecialchars($payment['amount']); ?></td>
-                        <td><?php echo htmlspecialchars($payment['amount_paid']); ?></td>
-                        <td><?php echo htmlspecialchars(number_format($payment['amount'], 2)); ?></td>
                     </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="5">No rental payments found.</td>
+                        <td colspan="7">No electricity payment records found.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>
