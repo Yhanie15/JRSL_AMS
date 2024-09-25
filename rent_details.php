@@ -1,56 +1,102 @@
 <?php
 // Include your database connection
-include 'db.php';  // Make sure to include the correct path for your DB connection file
+include 'db.php';
 
-// Fetch the unit number from GET or POST
+// Fetch the room number from GET or POST
 $unit_number = isset($_GET['unit_number']) ? $_GET['unit_number'] : null;
 
 if ($unit_number === null) {
-    echo "No unit number provided.";
+    echo "No room number provided.";
     exit;
 }
 
-// Function to fetch unpaid rent balances for a specific unit number
-function fetchRentBalances($pdo, $unit_number) {
-    $stmt = $pdo->prepare("
-        SELECT 
-            rooms.rent AS monthly_rate, 
-            rent_payments.payment_date AS date, 
-            IFNULL(rent_payments.status, 'Unpaid') AS status,
-            DATE_FORMAT(NOW(), '%Y-%m') AS current_month, 
-            rooms.unit_number
-        FROM rooms 
-        LEFT JOIN rent_payments 
-        ON rooms.unit_number = rent_payments.unit_number 
-        WHERE rooms.unit_number = ? 
-        AND rent_payments.status = 'Unpaid'
-        ORDER BY rent_payments.payment_date DESC
-    ");
+// Function to fetch the move-in date of the first tenant
+function fetchMoveInDate($pdo, $unit_number) {
+    $stmt = $pdo->prepare("SELECT MIN(move_in_date) AS move_in_date FROM tenants WHERE unit_number = ?");
     $stmt->execute([$unit_number]);
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    return $stmt->fetch(PDO::FETCH_ASSOC)['move_in_date'];
 }
 
+// Function to fetch rent balances per month for a specific room number
+function fetchRentBalances($pdo, $unit_number, $move_in_date) {
+    $currentDate = new DateTime();
+    $moveInDate = new DateTime($move_in_date);
+    $rentBalances = [];
 
+    // Start from the move-in date
+    $moveInDate->modify('first day of this month');
+    $moveInDate->modify('+1 month'); // Start from the month after the move-in date
 
-// Function to fetch payment history for a specific unit number
+    // Calculate the months from the adjusted move-in date to the current date
+    while ($moveInDate <= $currentDate) {
+        $month = $moveInDate->format('Y-m-25'); // Set the due date to the 25th of each month
+
+        $stmt = $pdo->prepare("SELECT 
+            r.rent AS monthly_rate, 
+            IFNULL(SUM(rp.amount_paid), 0) AS total_paid
+        FROM rooms r
+        LEFT JOIN rent_payments rp ON r.unit_number = rp.unit_number 
+        AND rp.bill_date = ? 
+        WHERE r.unit_number = ?");
+        
+        $stmt->execute([$month, $unit_number]);
+        $paymentData = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $totalPaid = $paymentData['total_paid'] ?? 0;
+        $monthlyRate = $paymentData['monthly_rate'] ?? 0;
+        $totalBalance = $monthlyRate - $totalPaid;
+
+        // Only add to rentBalances if total balance is greater than 0
+        if ($totalBalance > 0) {
+            $rentBalances[] = [
+                'monthly_rate' => $monthlyRate,
+                'bill_date' => $month,
+                'total_balance' => $totalBalance // Directly store total balance
+            ];
+        }
+
+        // Move to the next month
+        $moveInDate->modify('first day of next month');
+    }
+
+    return $rentBalances;
+}
+
+// Function to fetch payment history for a specific room number
 function fetchPaymentHistory($pdo, $unit_number) {
-    $stmt = $pdo->prepare("
-        SELECT 
-            id, 
-            payment_date, 
-            month, 
-            amount_paid
-        FROM rent_payments 
-        WHERE unit_number = ? 
-        ORDER BY payment_date DESC
-    ");
+    $stmt = $pdo->prepare("SELECT * FROM rent_payments WHERE unit_number = ? ORDER BY payment_date DESC");
     $stmt->execute([$unit_number]);
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-// Fetch the rent balances and payment history for the given unit number
-$rentBalances = fetchRentBalances($pdo, $unit_number);
-$paymentHistory = fetchPaymentHistory($pdo, $unit_number);
+// Handle payment submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $month = $_POST['month'];
+    $paymentDate = $_POST['payment_date'];
+    $amountPaid = $_POST['amount_paid'];
+    $unit_number = $_POST['unit_number'];
+
+    // Convert month to a valid date (e.g., 25th day of the month)
+    $billDate = $month . '-25';
+
+    // Insert payment into rent_payments table
+    $stmt = $pdo->prepare("INSERT INTO rent_payments (unit_number, bill_date, amount_paid, payment_date) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$unit_number, $billDate, $amountPaid, $paymentDate]);
+
+    // Check if the payment was inserted successfully
+    if ($stmt->rowCount() > 0) {
+        // Refresh the rent balances after payment
+        header("Location: " . $_SERVER['PHP_SELF'] . "?unit_number=" . urlencode($unit_number));
+        exit;
+    } else {
+        echo "Error inserting payment.";
+    }
+}
+
+// Fetch the move-in date, rent balances, and payment history
+$moveInDate = fetchMoveInDate($pdo, $unit_number);
+$rentBalances = fetchRentBalances($pdo, $unit_number, $moveInDate);
+$paymentHistory = fetchPaymentHistory($pdo, $unit_number); // Fetch payment history here
 ?>
 
 <!DOCTYPE html>
@@ -58,59 +104,56 @@ $paymentHistory = fetchPaymentHistory($pdo, $unit_number);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rent Details for Unit <?php echo htmlspecialchars($unit_number); ?></title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="JRSLCSS/rent.css"> 
+    <title>Rent Details for Room <?php echo htmlspecialchars($unit_number); ?></title>
+    <link rel="stylesheet" href="JRSLCSS/rent_details.css"> 
 </head>
+
 <body>
     <?php include 'sidebar.php'; ?>
 
     <div class="main-content">
-    <a href="rent.php" class="back-link"><i class="fas fa-arrow-left"></i> Back to Rent Page</a>
+        <a href="rent.php" class="back-link"><i class="fas fa-arrow-left"></i> Back to Rent Page</a>
         <h2>Rent Details for Unit <?php echo htmlspecialchars($unit_number); ?></h2>
 
         <!-- Quick Search -->
-        <div>
+        <div class="search-section">
             <input type="text" placeholder="Quick Search" id="searchRentDetails">
-            <button onclick="openAddPaymentModal()" class="button">+ Add Payment</button>
+            <button onclick="openAddPaymentModal()" class="add-payment-btn">+ Add Payment</button>
         </div>
 
         <!-- Rent Balances Table -->
         <h3>Rent Balances</h3>
-        <table id="rentBalancesTable">
+        <table class="rent-balances-table">
             <thead>
                 <tr>
-                    <th>Monthly Rate</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Action</th>
+                    <th>Monthly Bill</th>
+                    <th>Month</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($rentBalances as $balance): ?>
                     <tr>
-                        <td>PHP <?php echo number_format($balance['monthly_rate'], 2); ?></td>
-                        <td><?php echo htmlspecialchars($balance['date']); ?></td>
-                        <td><?php echo htmlspecialchars($balance['status']); ?></td>
-                        <td><button class="button">Edit</button></td>
+                        <td>PHP <?php echo number_format($balance['total_balance'], 2); ?></td>
+                        <td><?php echo date('F Y', strtotime($balance['bill_date'])); ?></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
-        <div>
-            <strong>Total Balance:</strong> PHP <span id="totalBalance">0.00</span>
+
+        <!-- Total Balance Section -->
+        <div class="total-balance" style="text-align:left; margin-top:20px;">
+            <span>Total Balance:</span> PHP <span id="totalBalance"><?php echo number_format(array_sum(array_column($rentBalances, 'total_balance')), 2); ?></span>
         </div>
 
         <!-- Payment History Table -->
         <h3>Payment History</h3>
-        <table id="paymentHistoryTable">
+        <table class="payment-history-table">
             <thead>
                 <tr>
                     <th>#</th>
                     <th>Date Time Added</th>
                     <th>Month Of</th>
-                    <th>Amount</th>
-                    <th>Action</th>
+                    <th>Amount Paid</th>
                 </tr>
             </thead>
             <tbody>
@@ -118,106 +161,53 @@ $paymentHistory = fetchPaymentHistory($pdo, $unit_number);
                     <tr>
                         <td><?php echo $index + 1; ?></td>
                         <td><?php echo htmlspecialchars($payment['payment_date']); ?></td>
-                        <td><?php echo htmlspecialchars($payment['month']); ?></td>
+                        <td><?php echo isset($payment['bill_date']) ? date('F Y', strtotime($payment['bill_date'])) : 'N/A'; ?></td>
                         <td>PHP <?php echo number_format($payment['amount_paid'], 2); ?></td>
-                        <td><button class="button">Edit</button></td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
 
-       <!-- Add Payment Modal -->
-<div id="addPaymentModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeAddPaymentModal()">&times;</span>
-        <h3>Add Payment for Unit <?php echo htmlspecialchars($unit_number); ?></h3>
-        <form id="addPaymentForm">
-            <input type="hidden" name="unit_number" value="<?php echo htmlspecialchars($unit_number); ?>">
+        <!-- Add Payment Modal -->
+        <div id="addPaymentModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeAddPaymentModal()">&times;</span>
+                <h3>Add Payment for Unit <?php echo htmlspecialchars($unit_number); ?></h3>
+                <form id="addPaymentForm" method="POST">
+                    <input type="hidden" name="unit_number" value="<?php echo htmlspecialchars($unit_number); ?>">
 
-            <!-- Month Picker -->
-            <label for="month">Month of:</label>
-            <input type="month" name="month" required>
+                    <!-- Month Picker -->
+                    <label for="month">Month of:</label>
+                    <input type="month" name="month" required>
 
-            <!-- Payment Date -->
-            <label for="payment_date"><br>Date of Payment:</label>
-            <input type="date" name="payment_date" required>
+                    <!-- Payment Date -->
+                    <label for="payment_date"><br>Date of Payment:</label>
+                    <input type="date" name="payment_date" required>
 
-            <!-- Amount Paid -->
-            <label for="amount_paid"><br>Amount Paid:</label>
-            <input type="number" name="amount_paid" required><br>
+                    <!-- Amount Paid -->
+                    <label for="amount_paid"><br>Amount Paid:</label>
+                    <input type="number" name="amount_paid" required><br>
 
-            <button type="submit" class="button">Submit</button>
-            <button type="button" class="button" onclick="closeAddPaymentModal()">Cancel</button>
-        </form>
+                    <button type="submit" class="submit-btn">Submit</button>
+                    <button type="button" class="cancel-btn" onclick="closeAddPaymentModal()">Cancel</button>
+                </form>
+            </div>
+        </div>
     </div>
-</div>
 
-<script>
-    // Function to open the modal
-    function openAddPaymentModal() {
-        document.getElementById('addPaymentModal').style.display = 'flex';
-    }
+    <script>
+        function openAddPaymentModal() {
+            document.getElementById('addPaymentModal').style.display = 'flex';
+        }
 
-    // Function to close the modal
-    function closeAddPaymentModal() {
-        document.getElementById('addPaymentModal').style.display = 'none';
-    }
+        function closeAddPaymentModal() {
+            document.getElementById('addPaymentModal').style.display = 'none';
+        }
 
-    // Ensure modal is hidden when page loads
-    window.onload = function() {
-        closeAddPaymentModal();
-    };
+        window.onload = function() {
+            closeAddPaymentModal();
+        };
+    </script>
 
-    // AJAX form submission for adding payment
-    document.getElementById('addPaymentForm').addEventListener('submit', function (e) {
-        e.preventDefault(); // Prevent the default form submission
-
-        var formData = new FormData(this);
-
-        fetch('submit_payment.php', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Add the new payment to the payment history table
-                const paymentHistoryTable = document.getElementById('paymentHistoryTable').getElementsByTagName('tbody')[0];
-
-                const newRow = paymentHistoryTable.insertRow(0); // Insert at the top of the table
-                newRow.innerHTML = `
-                    <td>${data.payment.id}</td>
-                    <td>${data.payment.payment_date}</td>
-                    <td>${data.payment.month}</td>
-                    <td>PHP ${parseFloat(data.payment.amount_paid).toFixed(2)}</td>
-                    <td><button class="button">Edit</button></td>
-                `;
-
-                // Remove the corresponding row from Rent Balances Table
-                const rentBalancesTable = document.getElementById('rentBalancesTable').getElementsByTagName('tbody')[0];
-                const rows = rentBalancesTable.getElementsByTagName('tr');
-
-                // Loop through rows to find and remove the row for the paid month
-                for (let i = 0; i < rows.length; i++) {
-                    const row = rows[i];
-                    const dateCell = row.getElementsByTagName('td')[1]; // Assuming date is in the second column
-
-                    if (dateCell && dateCell.textContent === data.payment.month) {
-                        rentBalancesTable.deleteRow(i);
-                        break;
-                    }
-                }
-
-                closeAddPaymentModal(); // Close the modal after submission
-            } else {
-                alert('Payment submission failed. Please try again.');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Payment submission failed. Please try again.');
-        });
-    });
-</script>
 </body>
 </html>
