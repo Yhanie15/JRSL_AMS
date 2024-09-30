@@ -44,8 +44,8 @@
                 <td>Paid</td>
                 <td>2024-09-20</td>
                 <td>
-                    <a href="#" class="compute-link">Compute Bills</a> 
-                    <a href="#" class="update-link">Update Payment</a>
+                    <a href="#" class="button">Compute Bills</a> 
+                    <a href="#" class="button">Update Payment</a>
                 </td>
             </tr>
             <tr>
@@ -55,8 +55,8 @@
                 <td>Unpaid</td>
                 <td>N/A</td>
                 <td>
-                    <a href="#" class="compute-link">Compute Bills</a> 
-                    <a href="#" class="update-link">Update Payment</a>
+                    <a href="#" class="button">Compute Bills</a> 
+                    <a href="#" class="button">Update Payment</a>
                 </td>
             </tr>
         </tbody>
