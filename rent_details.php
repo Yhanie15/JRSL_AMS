@@ -23,13 +23,13 @@ function fetchRentBalances($pdo, $unit_number, $move_in_date) {
     $moveInDate = new DateTime($move_in_date);
     $rentBalances = [];
 
-    // Start from the move-in date
-    $moveInDate->modify('first day of this month');
-    $moveInDate->modify('+1 month'); // Start from the month after the move-in date
+    // Set the initial due date as exactly one month after the move-in date
+    $moveInDate->modify('+1 month');
+    $dueDate = clone $moveInDate; // Set the initial due date
 
-    // Calculate the months from the adjusted move-in date to the current date
-    while ($moveInDate <= $currentDate) {
-        $month = $moveInDate->format('Y-m-25'); // Set the due date to the 25th of each month
+    // Calculate the due dates from the adjusted move-in date to the current date
+    while ($dueDate <= $currentDate) {
+        $month = $dueDate->format('Y-m-d'); // Due date is based on the exact move-in date
 
         $stmt = $pdo->prepare("SELECT 
             r.rent AS monthly_rate, 
@@ -55,8 +55,8 @@ function fetchRentBalances($pdo, $unit_number, $move_in_date) {
             ];
         }
 
-        // Move to the next month
-        $moveInDate->modify('first day of next month');
+        // Move to the next due date (1 month later)
+        $dueDate->modify('+1 month');
     }
 
     return $rentBalances;
@@ -76,12 +76,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $amountPaid = $_POST['amount_paid'];
     $unit_number = $_POST['unit_number'];
 
-    // Convert month to a valid date (e.g., 25th day of the month)
-    $billDate = $month . '-25';
-
     // Insert payment into rent_payments table
     $stmt = $pdo->prepare("INSERT INTO rent_payments (unit_number, bill_date, amount_paid, payment_date) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$unit_number, $billDate, $amountPaid, $paymentDate]);
+    $stmt->execute([$unit_number, $month, $amountPaid, $paymentDate]);
 
     // Check if the payment was inserted successfully
     if ($stmt->rowCount() > 0) {
