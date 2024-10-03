@@ -1,3 +1,41 @@
+<?php
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Retrieve the values from the form
+    $water_rate = $_POST['water_rate'];
+    $water_consumption = $_POST['water_consumption'];
+    $meter_read_date = $_POST['meter_read_date'];
+
+    // Perform water bill calculation
+    $water_bill = $water_rate * $water_consumption;
+
+    // Show the calculated water bill
+    ?>
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="styles.css"> <!-- Your main CSS -->
+        <link rel="stylesheet" href="JRSLCSS/water_result.css"> <!-- New CSS for result page -->
+        <title>Water Bill Result</title>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Water Bill Calculation Result</h2>
+            <div class="result">
+                Water bill: PHP <?php echo number_format($water_bill, 2); ?><br>
+                Water bill calculated successfully!
+            </div>
+            <a href="dashboard.php" class="back-button">Back to Dashboard</a>
+        </div>
+    </body>
+    </html>
+    <?php
+}
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,6 +61,8 @@
         <button class="filter-button">Filter</button>
     </div>
 
+
+
     <!-- Water Payment Table -->
     <table class="payment-table">
         <thead>
@@ -46,6 +86,7 @@
                 <td>
                     <a href="#" class="compute-link">Compute Bills</a> 
                     <a href="#" class="update-link">Update Payment</a>
+                    <a href="water_payment_history.php?unit_number=<?php echo urlencode('Room 101'); ?>" class="history-link"><p>View Payment History</p></a>
                 </td>
             </tr>
             <tr>
@@ -57,6 +98,7 @@
                 <td>
                     <a href="#" class="compute-link">Compute Bills</a> 
                     <a href="#" class="update-link">Update Payment</a>
+                    <a href="water_payment_history.php?unit_number=<?php echo urlencode('Room 101'); ?>" class="history-link"><p>View Payment History</p></a>
                 </td>
             </tr>
         </tbody>
@@ -68,6 +110,9 @@
     <div class="modal-content">
         <h3>Calculate Water for Room 101</h3>
         <form method="POST" action="compute_water.php">
+            <label>Unit Number:</label> <!-- Add this -->
+            <input type="text" name="unit_number" value="Room 101" required> <!-- Add this with default room number -->
+
             <label>Water Rate (PHP per gallon):</label>
             <input type="text" name="water_rate" required>
 
@@ -82,6 +127,7 @@
         <button class="back-button" onclick="closeModal('computeModal')">Back to Water</button>
     </div>
 </div>
+
 
 <!-- Modal for Updating Payment -->
 <div class="modal" id="updateModal">
@@ -126,7 +172,10 @@ document.querySelectorAll('.update-link').forEach(function(link) {
         openModal('updateModal');
     });
 });
+
 </script>
 
 </body>
 </html>
+
+

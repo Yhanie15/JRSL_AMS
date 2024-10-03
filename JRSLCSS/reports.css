@@ -56,3 +56,23 @@
         grid-template-columns: 1fr; /* Stack the cards on smaller screens */
     }
 }
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.report-table th, .report-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+.report-table th {
+    background-color: #f2f2f2;
+    text-align: left;
+}
+
+.report-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}

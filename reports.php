@@ -24,7 +24,7 @@
                 <span>Rental Payment Report</span>
             </div>
             <div class="report-card" onclick="window.location.href='water_bill_report.php'">
-                <span>Water Bill Payment Report</span>
+            <span>Water Bill Payment Report</span>
             </div>
             <div class="report-card" onclick="window.location.href='electricity_bill_report.php'">
                 <span>Electricity Bill Payment Report</span>

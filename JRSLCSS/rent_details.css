@@ -38,7 +38,8 @@
 .rent-balances-table td, .payment-history-table td {
     border: 1px solid #ccc;
     padding: 10px;
-    text-align: left;
+    text-align: center;
+    
 }
 
 .rent-balances-table th, .payment-history-table th {
