@@ -29,14 +29,14 @@ function fetchRentBalances($pdo, $unit_number, $move_in_date) {
 
     // Calculate the due dates from the adjusted move-in date to the current date
     while ($dueDate <= $currentDate) {
-        $month = $dueDate->format('Y-m-d'); // Due date is based on the exact move-in date
+        $month = $dueDate->format('Y-m'); // Due date is based on the month
 
         $stmt = $pdo->prepare("SELECT 
             r.rent AS monthly_rate, 
             IFNULL(SUM(rp.amount_paid), 0) AS total_paid
         FROM rooms r
         LEFT JOIN rent_payments rp ON r.unit_number = rp.unit_number 
-        AND rp.bill_date = ? 
+        AND DATE_FORMAT(rp.bill_date, '%Y-%m') = ? 
         WHERE r.unit_number = ?");
         
         $stmt->execute([$month, $unit_number]);
@@ -50,7 +50,7 @@ function fetchRentBalances($pdo, $unit_number, $move_in_date) {
         if ($totalBalance > 0) {
             $rentBalances[] = [
                 'monthly_rate' => $monthlyRate,
-                'bill_date' => $month,
+                'bill_date' => $dueDate->format('Y-m-d'),
                 'total_balance' => $totalBalance // Directly store total balance
             ];
         }
@@ -71,14 +71,17 @@ function fetchPaymentHistory($pdo, $unit_number) {
 
 // Handle payment submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $month = $_POST['month'];
+    $month = $_POST['month']; // Expects 'YYYY-MM' format
     $paymentDate = $_POST['payment_date'];
     $amountPaid = $_POST['amount_paid'];
     $unit_number = $_POST['unit_number'];
 
+    // Create a valid bill date format for insertion
+    $bill_date = $month . '-01'; // Ensuring the format is 'YYYY-MM-DD'
+
     // Insert payment into rent_payments table
     $stmt = $pdo->prepare("INSERT INTO rent_payments (unit_number, bill_date, amount_paid, payment_date) VALUES (?, ?, ?, ?)");
-    $stmt->execute([$unit_number, $month, $amountPaid, $paymentDate]);
+    $stmt->execute([$unit_number, $bill_date, $amountPaid, $paymentDate]);
 
     // Check if the payment was inserted successfully
     if ($stmt->rowCount() > 0) {
