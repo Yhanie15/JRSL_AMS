@@ -25,13 +25,22 @@ if (isset($_GET['unit_number'])) {
     <title>Water Payment History</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="JRSLCSS/water_result.css"> <!-- Assuming a similar style file -->
+    <link rel="stylesheet" href="JRSLCSS/bills_payment.css">
 </head>
 <body>
-    <div class="container">
+<?php include 'sidebar.php'; ?>
+    <div class="main-content">
+    <a href="water_payment.php" class="back-link"><i class="fas fa-arrow-left"></i> Back to Rent Page</a>
         <h2>Payment History for Unit <?php echo htmlspecialchars($unit_number); ?></h2>
+        
+        <div class="search-section">
+            <input type="text" placeholder="Quick Search" id="searchRentDetails">
+            <button onclick="openAddPaymentModal()" class="back-button">+ Compute Bills</button>
+            <button onclick="openAddPaymentModal()" class="back-button">+ Add Payment</button>
+        </div>
 
         <?php if ($result && $result->num_rows > 0): ?>
-            <table class="payment-history-table">
+            <table class="payment-table">
                 <thead>
                     <tr>
                         <th>Computation Date</th>
@@ -57,7 +66,7 @@ if (isset($_GET['unit_number'])) {
             <p>No payment history available for Unit <?php echo htmlspecialchars($unit_number); ?>.</p>
         <?php endif; ?>
 
-        <a href="water_payment.php" class="back-button">Back to Water Payments</a>
+        
     </div>
 </body>
 </html>

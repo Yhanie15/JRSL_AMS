@@ -37,3 +37,15 @@ h2 {
 .back-button:hover {
     background-color: #45a049;
 }
+.search-section {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.search-section input {
+    width: 70%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
