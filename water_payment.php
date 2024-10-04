@@ -1,40 +1,17 @@
 <?php
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Retrieve the values from the form
-    $water_rate = $_POST['water_rate'];
-    $water_consumption = $_POST['water_consumption'];
-    $meter_read_date = $_POST['meter_read_date'];
+// Database connection
+$conn = new mysqli('localhost', 'root', '', 'apartment_management');
 
-    // Perform water bill calculation
-    $water_bill = $water_rate * $water_consumption;
-
-    // Show the calculated water bill
-    ?>
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="styles.css"> <!-- Your main CSS -->
-        <link rel="stylesheet" href="JRSLCSS/water_result.css"> <!-- New CSS for result page -->
-        <title>Water Bill Result</title>
-    </head>
-    <body>
-        <div class="container">
-            <h2>Water Bill Calculation Result</h2>
-            <div class="result">
-                Water bill: PHP <?php echo number_format($water_bill, 2); ?><br>
-                Water bill calculated successfully!
-            </div>
-            <a href="dashboard.php" class="back-button">Back to Dashboard</a>
-        </div>
-    </body>
-    </html>
-    <?php
+// Check for connection error
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
 }
+
+// Fetch all unit numbers from the 'rooms' table
+$sql = "SELECT unit_number FROM rooms";
+$units_result = $conn->query($sql);
+
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -61,14 +38,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <button class="filter-button">Filter</button>
     </div>
 
-
-
     <!-- Water Payment Table -->
     <table class="payment-table">
         <thead>
             <tr>
                 <th>Unit Number</th>
-                <th>Monthly Water Bill</th>
+                <th>Balance</th>
                 <th>Due Date</th>
                 <th>Current Status</th>
                 <th>Last Payment Date</th>
@@ -76,106 +51,75 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </tr>
         </thead>
         <tbody>
-            <!-- Sample Data -->
-            <tr>
-                <td>Room 101</td>
-                <td>PHP 1500</td>
-                <td>2024-09-25</td>
-                <td>Paid</td>
-                <td>2024-09-20</td>
-                <td>
-                    <a href="#" class="compute-link">Compute Bills</a> 
-                    <a href="#" class="update-link">Update Payment</a>
-                    <a href="water_payment_history.php?unit_number=<?php echo urlencode('Room 101'); ?>" class="history-link"><p>View Payment History</p></a>
-                </td>
-            </tr>
-            <tr>
-                <td>Room 102</td>
-                <td>N/A</td>
-                <td>N/A</td>
-                <td>Unpaid</td>
-                <td>N/A</td>
-                <td>
-                    <a href="#" class="compute-link">Compute Bills</a> 
-                    <a href="#" class="update-link">Update Payment</a>
-                    <a href="water_payment_history.php?unit_number=<?php echo urlencode('Room 101'); ?>" class="history-link"><p>View Payment History</p></a>
-                </td>
-            </tr>
+            <?php
+            // Check if units were fetched successfully
+            if ($units_result && $units_result->num_rows > 0) {
+                // Loop through each unit
+                while ($unit = $units_result->fetch_assoc()) {
+                    $unit_number = $unit['unit_number'];
+
+                    // Fetch the latest water bill details from water_calculations
+                    $payment_sql = "
+                        SELECT * 
+                        FROM water_calculations 
+                        WHERE unit_number = '$unit_number' 
+                        ORDER BY calculation_month DESC 
+                        LIMIT 1";
+                    $payment_result = $conn->query($payment_sql);
+
+                    if ($payment_result && $payment_result->num_rows > 0) {
+                        // If water calculation data is available
+                        $payment = $payment_result->fetch_assoc();
+                        $monthly_water_bill = number_format($payment['water_bill'], 2);
+                        $due_date = $payment['due_date']; // Fetch the due date from the database
+                        $current_status = $payment['current_status'];
+                        $last_payment_date = $payment['last_payment_date'] ? $payment['last_payment_date'] : 'N/A';
+                    } else {
+                        // No water calculation data available
+                        $monthly_water_bill = 'N/A';
+                        $due_date = 'N/A';
+                        $current_status = 'Unpaid';
+                        $last_payment_date = 'N/A';
+                    }
+
+                    // Compute the balance by summing all unpaid water bills
+                    $balance_sql = "
+                        SELECT SUM(water_bill) AS balance 
+                        FROM water_calculations 
+                        WHERE unit_number = '$unit_number' 
+                        AND current_status = 'Unpaid'";
+                    $balance_result = $conn->query($balance_sql);
+                    $balance_row = $balance_result->fetch_assoc();
+                    $balance = $balance_row['balance'] ? number_format($balance_row['balance'], 2) : 'N/A';
+
+                    // Display the data in the table
+                    ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($unit_number); ?></td>
+                        <td>PHP <?php echo htmlspecialchars($balance); ?></td>
+                        <td><?php echo htmlspecialchars($due_date); ?></td>
+                        <td><?php echo htmlspecialchars($current_status); ?></td>
+                        <td><?php echo htmlspecialchars($last_payment_date); ?></td>
+                        
+                        <td>
+                            <a href="water_payment_history.php?unit_number=<?php echo urlencode($unit_number); ?>" class="button"><p>View Payment History</p></a>
+                        </td>
+                    </tr>
+                    <?php
+                }
+            } else {
+                // No units available
+                echo "<tr><td colspan='7'>No units available.</td></tr>";
+            }
+            ?>
         </tbody>
     </table>
 </div>
 
-<!-- Modal for Calculating Water Bill -->
-<div class="modal" id="computeModal">
-    <div class="modal-content">
-        <h3>Calculate Water for Room 101</h3>
-        <form method="POST" action="compute_water.php">
-            <label>Unit Number:</label> <!-- Add this -->
-            <input type="text" name="unit_number" value="Room 101" required> <!-- Add this with default room number -->
-
-            <label>Water Rate (PHP per gallon):</label>
-            <input type="text" name="water_rate" required>
-
-            <label>Water Consumption (gallons):</label>
-            <input type="text" name="water_consumption" required>
-
-            <label>Meter Read Date:</label>
-            <input type="date" name="meter_read_date" required>
-
-            <button type="submit" class="green-button">Calculate</button>
-        </form>
-        <button class="back-button" onclick="closeModal('computeModal')">Back to Water</button>
-    </div>
-</div>
-
-
-<!-- Modal for Updating Payment -->
-<div class="modal" id="updateModal">
-    <div class="modal-content">
-        <h3>Update Water Payment Room 101</h3>
-        <form method="POST" action="update_payment.php">
-            <label>Amount:</label>
-            <input type="text" name="amount_paid" required>
-
-            <label>Payment Date:</label>
-            <input type="date" name="payment_date" required>
-
-            <button type="submit" class="green-button">Submit Payment</button>
-        </form>
-        <button class="back-button" onclick="closeModal('updateModal')">Back to Water</button>
-    </div>
-</div>
-
-<script>
-    // Open modal function
-    function openModal(modalId) {
-        document.getElementById(modalId).style.display = "block";
-    }
-
-    // Close modal function
-    function closeModal(modalId) {
-        document.getElementById(modalId).style.display = "none";
-    }
-
-    // Attach event listeners to all compute links
-document.querySelectorAll('.compute-link').forEach(function(link) {
-    link.addEventListener('click', function(event) {
-        event.preventDefault(); // Prevent default anchor behavior
-        openModal('computeModal');
-    });
-});
-
-// Attach event listeners to all update links
-document.querySelectorAll('.update-link').forEach(function(link) {
-    link.addEventListener('click', function(event) {
-        event.preventDefault(); // Prevent default anchor behavior
-        openModal('updateModal');
-    });
-});
-
-</script>
-
 </body>
 </html>
 
-
+<?php
+// Close the connection
+$conn->close();
+?>
