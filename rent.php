@@ -96,7 +96,6 @@ SELECT
     rooms.id, 
     rooms.unit_number, 
     rooms.rent AS rent_per_month,
-    COALESCE(SUM(bills.water_bill + bills.electricity_bill), 0) AS total_bills,
     MAX(tenant_move_in.move_in_date) AS move_in_date,
     tenants.move_in_date AS tenant_move_in_date
 FROM rooms
