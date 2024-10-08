@@ -10,8 +10,8 @@ if (!isset($_SESSION['username'])) {
 
 include 'db.php'; // Include db.php to get $pdo connection
 
-// Fetch rooms data
-$stmt = $pdo->query("SELECT id, unit_number, rent, capacity FROM rooms");
+// Fetch rooms data, including room_type
+$stmt = $pdo->query("SELECT id, unit_number, rent, capacity, room_type FROM rooms");
 $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
@@ -45,6 +45,7 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <h3><?php echo htmlspecialchars($room['unit_number']); ?></h3>
                     <p><i class="fas fa-dollar-sign"></i> <?php echo htmlspecialchars($room['rent']); ?></p>
                     <p><i class="fas fa-users"></i> Capacity: <?php echo htmlspecialchars($room['capacity']); ?></p>
+                    <p><i class="fas fa-door-open"></i> Type: <?php echo htmlspecialchars($room['room_type']); ?></p> <!-- Display room type -->
                     <div class="room-actions">
                         <a href="view_room.php?id=<?php echo $room['id']; ?>" class="button view-button">View</a>
                         <button class="button delete-button" onclick="confirmDelete(<?php echo $room['id']; ?>)">Delete</button>
