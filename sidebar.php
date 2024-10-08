@@ -30,7 +30,7 @@
                 <ul class="dropdown-content">
                     <li><a href="rent.php"><i class="fas fa-money-bill"></i> Rent</a></li>
                     <li><a href="water_payment.php"><i class="fas fa-tint"></i> Water</a></li>
-                    <li><a href="electric_payment.php"><i class="fas fa-bolt"></i> Electricity</a></li>
+                    <li><a href="electricity.php"><i class="fas fa-bolt"></i> Electricity</a></li>
                 </ul>
             </li>
             

@@ -1,59 +1,45 @@
 <?php
+// Database connection
+$conn = new mysqli('localhost', 'root', '', 'apartment_management');
+
+// Check for connection error
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Check if form is submitted
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Database connection (ensure your database credentials are correct)
-    $conn = new mysqli('localhost', 'root', '', 'apartment_management'); 
-
-
-    // Check for connection error
-    if ($conn->connect_error) {
-        die("Connection failed: " . $conn->connect_error);
-    }
-
-    // Retrieve the values from the form
-    $unit_number = $_POST['unit_number']; // Add unit number input in your form
+    $unit_number = $_POST['unit_number'];
     $water_rate = $_POST['water_rate'];
     $water_consumption = $_POST['water_consumption'];
     $meter_read_date = $_POST['meter_read_date'];
+    $calculation_month = $_POST['calculation_month'];  // Retrieve the selected month
 
-    // Perform water bill calculation
+    // Convert the month from "YYYY-MM" to "Month Year" format (e.g., "August 2024")
+    $dateObj = DateTime::createFromFormat('Y-m', $calculation_month);
+    $formatted_month = $dateObj->format('F Y');  // "F" for full month name, "Y" for year
+
+    // Calculate the water bill
     $water_bill = $water_rate * $water_consumption;
 
-    // Insert the computed water bill into the database
-    $computation_date = date('Y-m-d'); // Current date for computation date
-    $due_date = date('Y-m-d', strtotime('+30 days')); // Set due date 30 days from computation date
+    // Calculate the due date (7 days after the meter_read_date)
+    $meter_read_date_obj = new DateTime($meter_read_date);
+    $meter_read_date_obj->modify('+7 days');
+    $due_date = $meter_read_date_obj->format('Y-m-d');
 
-    $sql = "INSERT INTO water_payments (unit_number, monthly_water_bill, computation_date, due_date, current_status)
-            VALUES ('$unit_number', '$water_bill', '$computation_date', '$due_date', 'Unpaid')";
+    // Insert the data into water_calculations with the formatted month and due date
+    $sql = "INSERT INTO water_calculations (unit_number, water_rate, water_consumption, meter_read_date, calculation_month, water_bill, due_date)
+            VALUES ('$unit_number', '$water_rate', '$water_consumption', '$meter_read_date', '$formatted_month', '$water_bill', '$due_date')";
 
     if ($conn->query($sql) === TRUE) {
-        // Show success message and calculated water bill
-        ?>
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <link rel="stylesheet" href="styles.css">
-            <link rel="stylesheet" href="JRSLCSS/water_result.css">
-            <title>Water Bill Result</title>
-        </head>
-        <body>
-        <div class="container">
-            <h2>Water Bill Calculation Result</h2>
-            <div class="result">
-                Water bill for Unit <?php echo $unit_number; ?>: PHP <?php echo number_format($water_bill, 2); ?><br>
-                Water bill calculated and saved successfully!
-            </div>
-            <a href="dashboard.php" class="back-button">Back to Dashboard</a>
-        </div>
-        </body>
-        </html>
-        <?php
+        echo "Water bill calculated successfully!";
+        header("Location: water_payment_history.php?unit_number=" . urlencode($unit_number)); // Redirect after successful insertion
+        exit;
     } else {
         echo "Error: " . $sql . "<br>" . $conn->error;
     }
-
-    // Close the connection
-    $conn->close();
 }
+
+// Close the connection
+$conn->close();
 ?>
