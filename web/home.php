@@ -22,8 +22,9 @@
             <li><a href="#room">Rooms</a></li>
             <li><a href="#amenities">Amenities</a></li>
             <li><a href="#contact">Contact</a></li>
+            <li><a class="login-btn"href="login.php">Log In</a><li>
         </ul>
-        <!--a href="#" class="login-btn">Log In</a>-->
+
     </nav>
 
     <!-- Hero Section -->
