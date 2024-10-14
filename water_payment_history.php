@@ -43,34 +43,6 @@ if (isset($_GET['unit_number'])) {
             <button onclick="openModal('updateModal')" class="back-button">+ Add Payment</button>
         </div>
 
-        <h3>Payment History</h3>
-        <?php if ($result && $result->num_rows > 0): ?>
-            <table class="payment-history-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Date Time Added</th>
-                        <th>Month Of</th>
-                        <th>Amount Paid</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php 
-                    $counter = 1;
-                    while ($row = $result->fetch_assoc()): ?>
-                        <tr>
-                            <td><?php echo $counter++; ?></td>
-                            <td><?php echo htmlspecialchars($row['payment_date']); ?></td>
-                            <td><?php echo htmlspecialchars($row['month_of']); ?></td>
-                            <td>PHP <?php echo number_format($row['amount_paid'], 2); ?></td>
-                        </tr>
-                    <?php endwhile; ?>
-                </tbody>
-            </table>
-        <?php else: ?>
-            <p>No payment history available for Unit <?php echo htmlspecialchars($unit_number); ?>.</p>
-        <?php endif; ?> 
-
         <h3>Remaining Water Bill Calculations</h3>
         <?php if ($calculation_result && $calculation_result->num_rows > 0): ?>
             <table class="payment-table">
@@ -97,6 +69,34 @@ if (isset($_GET['unit_number'])) {
             </table>
         <?php else: ?>
             <p>No water bill calculations available for Unit <?php echo htmlspecialchars($unit_number); ?>.</p>
+        <?php endif; ?> 
+
+        <h3>Payment History</h3>
+        <?php if ($result && $result->num_rows > 0): ?>
+            <table class="payment-history-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Date Time Added</th>
+                        <th>Month Of</th>
+                        <th>Amount Paid</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                    $counter = 1;
+                    while ($row = $result->fetch_assoc()): ?>
+                        <tr>
+                            <td><?php echo $counter++; ?></td>
+                            <td><?php echo htmlspecialchars($row['payment_date']); ?></td>
+                            <td><?php echo htmlspecialchars($row['month_of']); ?></td>
+                            <td>PHP <?php echo number_format($row['amount_paid'], 2); ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        <?php else: ?>
+            <p>No payment history available for Unit <?php echo htmlspecialchars($unit_number); ?>.</p>
         <?php endif; ?> 
     </div>
 
