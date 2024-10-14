@@ -275,9 +275,90 @@ nav {
 }
 
 
+/* Contact Us Section */
+.contact-section {
+    background-color: #f9f9f9;
+    padding: 60px 20px;
+    margin-top: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contact-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    max-width: 1200px;
+    width: 100%;
+}
+
+.contact-map {
+    flex: 1;
+    margin-right: 20px;
+}
+
+.contact-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 500px;
+}
+
+.contact-details h2 {
+    font-size: 28px;
+    color: #4f4334;
+    margin-bottom: 20px;
+}
+
+.contact-details ul {
+    list-style: none;
+    padding: 0;
+}
+
+.contact-details li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #333;
+}
+
+.contact-details i {
+    margin-right: 10px;
+    font-size: 20px;
+    color: #4f4334;
+}
+
+.contact-details a {
+    color: #4f4334;
+    text-decoration: none;
+}
+
+.contact-details a:hover {
+    text-decoration: underline;
+}
 
 
 
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .contact-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .contact-map {
+        margin-bottom: 30px;
+        margin-right: 0;
+    }
+
+    .contact-details {
+        max-width: 90%;
+    }
+}
 
 /* Media Queries for Responsiveness */
 @media (max-width: 1024px) {
