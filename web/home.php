@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JRSL Apartment - Your Home Away from Home</title>
-    <link
-    href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css"
-    rel="stylesheet"
-    />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="home.css">
 
 </head>
@@ -22,8 +21,9 @@
             <li><a href="home.php">Home</a></li>
             <li><a href="#room">Rooms</a></li>
             <li><a href="#amenities">Amenities</a></li>
-            <li><a href="#">Contact</a></li>
+            <li><a href="#contact">Contact</a></li>
         </ul>
+        <!--a href="#" class="login-btn">Log In</a>-->
     </nav>
 
     <!-- Hero Section -->
@@ -109,6 +109,35 @@
             </div>
         </div>
     </section>
+
+    <!-- Contact Us Section -->
+    <section id= contact class="contact-section">
+        <div class="contact-container">
+
+            <div class="contact-map">
+                <!-- Google Maps Embed or Image -->
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7721.903608455071!2d120.98189867770992!3d14.6018214!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397c9f90683dfeb%3A0x884fa70612e32cae!2sJRSL%20Dormitory!5e0!3m2!1sen!2sph!4v1728664537845!5m2!1sen!2sph" 
+                    width="600" 
+                    height="400" 
+                    style="border:0;" 
+                    allowfullscreen="" 
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+
+            <div class="contact-details">
+                <h2>How To Get There</h2>
+                <ul>
+                    <li><i class="fas fa-map-marker-alt"></i> JRSL Dormitory, 584 Dalupan St, Sampaloc, Manila, 1008 Metro Manila</li>
+                    <li><i class="fas fa-phone"></i> 0908 865 7758</li>
+                    <li><i class="fas fa-envelope"></i> 584apartment@gmail.com</li>
+                    <li><i class="fas fa-globe"></i> <a href="https://www.facebook.com/JRSLApartment" target="_blank">https://www.facebook.com/JRSLApartment</a></li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
 
 
 </body>
