@@ -18,7 +18,7 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 
 $room_id = $_GET['id'];
 
-// Fetch room data
+// Fetch room data including room_type
 $stmt = $pdo->prepare("SELECT * FROM rooms WHERE id = ?");
 $stmt->execute([$room_id]);
 $room = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -34,15 +34,19 @@ $stmt_tenants = $pdo->prepare("SELECT id as tenant_id, first_name, last_name, ph
 $stmt_tenants->execute([$room['unit_number']]);
 $tenants = $stmt_tenants->fetchAll(PDO::FETCH_ASSOC);
 
+// Sample room types (you can replace this with a database fetch if necessary)
+$room_types = ['Single', 'Double', 'Suite', 'Deluxe', 'Studio', 'Shared', 'Penthouse']; // Add more types as needed
+
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $unit_number = $_POST['unit_number'];
     $rent = $_POST['rent'];
     $capacity = $_POST['capacity'];
+    $room_type = $_POST['room_type']; // Fetch room_type from the form
 
     // Update room in the database
-    $stmt = $pdo->prepare("UPDATE rooms SET unit_number = ?, rent = ?, capacity = ? WHERE id = ?");
-    $stmt->execute([$unit_number, $rent, $capacity, $room_id]);
+    $stmt = $pdo->prepare("UPDATE rooms SET unit_number = ?, rent = ?, capacity = ?, room_type = ? WHERE id = ?");
+    $stmt->execute([$unit_number, $rent, $capacity, $room_type, $room_id]);
 
     // Return success message
     echo json_encode(['success' => true, 'message' => 'Room updated successfully!']);
@@ -74,6 +78,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .notification.fade {
             opacity: 0;
         }
+        select {
+            width: 100%;
+            padding: 8px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            height: 40px; /* Set height for scrollable effect */
+            overflow-y: auto; /* Enable vertical scrolling */
+        }
     </style>
 </head>
 <body>
@@ -103,6 +116,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="info-item">
                         <i class="fas fa-users"></i>
                         <p>Capacity: <?php echo htmlspecialchars($room['capacity']); ?></p>
+                    </div>
+                    <div class="info-item">
+                        <i class="fas fa-door-open"></i>
+                        <p>Room Type: <?php echo htmlspecialchars($room['room_type']); ?></p> <!-- Display room type -->
                     </div>
                 </div>
             </div>
@@ -159,6 +176,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <label for="capacity">Capacity:</label>
                 <input type="number" id="capacity" name="capacity" value="<?php echo htmlspecialchars($room['capacity']); ?>" required>
                 
+                <label for="room_type">Room Type:</label> <!-- Room Type Field -->
+                <select id="room_type" name="room_type" required>
+                    <?php foreach ($room_types as $type) { ?>
+                        <option value="<?php echo htmlspecialchars($type); ?>" <?php echo $type === $room['room_type'] ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($type); ?>
+                        </option>
+                    <?php } ?>
+                </select>
+
                 <button type="submit" class="button">Save Changes</button>
             </form>
         </div>
@@ -220,6 +246,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         document.querySelector('.room-info .info-item:nth-child(1) p').textContent = 'Unit Number: ' + document.getElementById('unit_number').value;
                         document.querySelector('.room-info .info-item:nth-child(2) p').textContent = 'Rent Fee: PHP' + document.getElementById('rent').value;
                         document.querySelector('.room-info .info-item:nth-child(3) p').textContent = 'Capacity: ' + document.getElementById('capacity').value;
+                        document.querySelector('.room-info .info-item:nth-child(4) p').textContent = 'Room Type: ' + document.getElementById('room_type').value;
                     } else {
                         alert("An error occurred.");
                     }

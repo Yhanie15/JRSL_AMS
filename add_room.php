@@ -12,12 +12,13 @@ include 'db.php'; // Include db.php to get $pdo connection
 // Handle form submission to add a new room
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $rent = $_POST['rent'];
-    $unit_number = $_POST['unit_number']; // New field
-    $capacity = $_POST['capacity']; // New field
+    $unit_number = $_POST['unit_number'];
+    $capacity = $_POST['capacity'];
+    $room_type = $_POST['room_type']; // New field for room type
 
     // Insert new room into the database
-    $stmt = $pdo->prepare("INSERT INTO rooms (rent, unit_number, capacity) VALUES (?, ?, ?)");
-    $stmt->execute([$rent, $unit_number, $capacity]);
+    $stmt = $pdo->prepare("INSERT INTO rooms (rent, unit_number, capacity, room_type) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$rent, $unit_number, $capacity, $room_type]);
 
     // Redirect to the view rooms page after successful insertion
     header("Location: view_rooms.php");
@@ -56,6 +57,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-group">
                     <label for="capacity">Capacity:</label>
                     <input type="number" id="capacity" name="capacity" required>
+                </div>
+                <div class="form-group">
+                    <label for="room_type">Room Type:</label>
+                    <select id="room_type" name="room_type" required>
+                        <option value="Studio">Studio</option>
+                        <option value="One-Bedroom">One-Bedroom</option>
+                        <option value="Two-Bedroom">Two-Bedroom</option>
+                        <option value="Loft">Loft</option>
+                        <option value="Shared Room">Shared Room</option>
+                        <option value="Deluxe Room">Deluxe Room</option>
+                        <option value="Penthouse">Penthouse</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <input type="submit" value="Add Room">
