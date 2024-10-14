@@ -22,6 +22,7 @@ $result = $conn->query($sql);
     <link rel="stylesheet" href="JRSLCSS/rental_payment.css"> <!-- Applying same rental payment styles -->
 </head>
 <body>
+    
     <div class="container">
         <h1>Water Bill Payment Report</h1>
         <div class="back-button">

@@ -50,7 +50,9 @@ if (!$tenant) {
 
     <!-- Page content -->
     <div class="main-content">
+
         <div class="tenant-info">
+        <a href="view_tenants.php" class="back-link"><i class="fas fa-arrow-left"></i> Back to List of Tenant</a>
             <h2>Tenant Information</h2>
             <p><strong>ID:</strong> <?php echo htmlspecialchars($tenant['id']); ?></p>
             <p><strong>Surname:</strong> <?php echo htmlspecialchars($tenant['middle_name']); ?></p>

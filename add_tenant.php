@@ -60,6 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Page content -->
     <div class="main-content">
         <div class="form-container">
+        <a href="view_tenants.php" class="back-link"><i class="fas fa-arrow-left"></i> Back to List of Tenant</a>
             <h2>Add New Tenant</h2>
             <form action="add_tenant.php" method="POST">
                 <div class="form-group">
