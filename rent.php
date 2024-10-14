@@ -99,7 +99,7 @@ SELECT
     MAX(tenant_move_in.move_in_date) AS move_in_date,
     tenants.move_in_date AS tenant_move_in_date
 FROM rooms
-LEFT JOIN bills ON rooms.unit_number = bills.unit_number
+
 LEFT JOIN (SELECT unit_number, move_in_date FROM tenants GROUP BY unit_number) AS tenant_move_in ON rooms.unit_number = tenant_move_in.unit_number
 LEFT JOIN tenants ON rooms.unit_number = tenants.unit_number
 GROUP BY rooms.id, rooms.unit_number, rooms.rent
