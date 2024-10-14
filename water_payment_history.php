@@ -100,6 +100,33 @@ if (isset($_GET['unit_number'])) {
         <?php endif; ?> 
     </div>
 
+    <!-- Modal for Calculating Water Bill -->
+<div class="compute_modal" id="computeModal">
+    <div class="modal-content">
+        <h3>Calculate Water for Room <?php echo htmlspecialchars($unit_number); ?></h3>
+        <form method="POST" action="compute_water.php">
+            <label>Unit Number:</label>
+            <input type="text" name="unit_number" value="<?php echo htmlspecialchars($unit_number); ?>" required><br>
+
+            <label>Water Rate (PHP per gallon):</label>
+            <input type="text" name="water_rate" required><br>
+
+            <label>Water Consumption (gallons):</label>
+            <input type="text" name="water_consumption" required><br>
+
+            <label>Meter Read Date:</label>
+            <input type="date" name="meter_read_date" required><br>
+
+            <!-- Add month picker for Calculation Month -->
+            <label>Calculation Month:</label>
+            <input type="month" name="calculation_month" required><br>
+
+            <button type="submit" class="green-button">Calculate</button>
+        </form>
+        <button class="back-button" onclick="closeModal('computeModal')">Back to Water</button>
+    </div>
+</div>
+
     <!-- Modal for Updating Payment -->
     <div class="payment_modal" id="updateModal">
         <div class="modal-content">
