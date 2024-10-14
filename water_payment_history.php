@@ -12,10 +12,10 @@ if (isset($_GET['unit_number'])) {
     $unit_number = $_GET['unit_number'];
 
     // Fetch payment history for the unit
-    $sql = "SELECT * FROM water_payments WHERE unit_number = '$unit_number' ORDER BY computation_date DESC";
+    $sql = "SELECT * FROM water_payment_history WHERE unit_number = '$unit_number' ORDER BY payment_date DESC";
     $result = $conn->query($sql);
 
-    // Fetch water calculations for the unit with the new calculation_month
+    // Fetch water calculations for the unit (remaining unpaid months)
     $calculation_sql = "SELECT * FROM water_calculations WHERE unit_number = '$unit_number' ORDER BY calculation_month DESC";
     $calculation_result = $conn->query($calculation_sql);
 }
@@ -34,7 +34,7 @@ if (isset($_GET['unit_number'])) {
 <body>
 <?php include 'sidebar.php'; ?>
     <div class="main-content">
-        <a href="water_payment.php" class="back-link"><i class="fas fa-arrow-left"></i> Back to Rent Page</a>
+        <a href="water_payment.php" class="back-link"><i class="fas fa-arrow-left"></i> Back to Water Payment Page</a>
         <h2>Payment History for Unit <?php echo htmlspecialchars($unit_number); ?></h2>
 
         <div class="search-section">
@@ -43,14 +43,35 @@ if (isset($_GET['unit_number'])) {
             <button onclick="openModal('updateModal')" class="back-button">+ Add Payment</button>
         </div>
 
+        <h3>Payment History</h3>
         <?php if ($result && $result->num_rows > 0): ?>
-            <!-- You can show payment history here -->
+            <table class="payment-history-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Date Time Added</th>
+                        <th>Month Of</th>
+                        <th>Amount Paid</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php 
+                    $counter = 1;
+                    while ($row = $result->fetch_assoc()): ?>
+                        <tr>
+                            <td><?php echo $counter++; ?></td>
+                            <td><?php echo htmlspecialchars($row['payment_date']); ?></td>
+                            <td><?php echo htmlspecialchars($row['month_of']); ?></td>
+                            <td>PHP <?php echo number_format($row['amount_paid'], 2); ?></td>
+                        </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
         <?php else: ?>
             <p>No payment history available for Unit <?php echo htmlspecialchars($unit_number); ?>.</p>
         <?php endif; ?> 
 
-        <!-- Display Water Bill Calculation History -->
-        <h3>Water Bill Calculations</h3>
+        <h3>Remaining Water Bill Calculations</h3>
         <?php if ($calculation_result && $calculation_result->num_rows > 0): ?>
             <table class="payment-table">
                 <thead>
@@ -67,9 +88,9 @@ if (isset($_GET['unit_number'])) {
                         <tr>
                             <td><?php echo htmlspecialchars($calculation_row['calculation_month']); ?></td>
                             <td>PHP <?php echo number_format($calculation_row['water_rate'], 2); ?></td>
-                            <td><?php echo $calculation_row['water_consumption']; ?></td>
+                            <td><?php echo htmlspecialchars($calculation_row['water_consumption']); ?></td>
                             <td>PHP <?php echo number_format($calculation_row['water_bill'], 2); ?></td>
-                            <td><?php echo $calculation_row['meter_read_date']; ?></td>
+                            <td><?php echo htmlspecialchars($calculation_row['meter_read_date']); ?></td>
                         </tr>
                     <?php endwhile; ?>
                 </tbody>
@@ -77,54 +98,13 @@ if (isset($_GET['unit_number'])) {
         <?php else: ?>
             <p>No water bill calculations available for Unit <?php echo htmlspecialchars($unit_number); ?>.</p>
         <?php endif; ?> 
-        
-        <h3>Payment History</h3>
-        <table class="payment-history-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Date Time Added</th>
-                    <th>Month Of</th>
-                    <th>Amount Paid</th>
-                </tr>
-            </thead>
-            <tbody>
     </div>
-
-    <!-- Modal for Calculating Water Bill -->
-<div class="compute_modal" id="computeModal">
-    <div class="modal-content">
-        <h3>Calculate Water for Room <?php echo htmlspecialchars($unit_number); ?></h3>
-        <form method="POST" action="compute_water.php">
-            <label>Unit Number:</label>
-            <input type="text" name="unit_number" value="<?php echo htmlspecialchars($unit_number); ?>" required><br>
-
-            <label>Water Rate (PHP per gallon):</label>
-            <input type="text" name="water_rate" required><br>
-
-            <label>Water Consumption (gallons):</label>
-            <input type="text" name="water_consumption" required><br>
-
-            <label>Meter Read Date:</label>
-            <input type="date" name="meter_read_date" required><br>
-
-            <!-- Add month picker for Calculation Month -->
-            <label>Calculation Month:</label>
-            <input type="month" name="calculation_month" required><br>
-
-            <button type="submit" class="green-button">Calculate</button>
-        </form>
-        <button class="back-button" onclick="closeModal('computeModal')">Back to Water</button>
-    </div>
-</div>
-
 
     <!-- Modal for Updating Payment -->
     <div class="payment_modal" id="updateModal">
         <div class="modal-content">
             <h3>Update Water Payment for <?php echo htmlspecialchars($unit_number); ?></h3>
-            <form method="POST" action="update_payment.php">
-                <!-- Month Picker -->
+            <form method="POST" action="update_payment.php?unit_number=<?php echo urlencode($unit_number); ?>">
                 <label for="month">Month of:</label>
                 <input type="month" name="month" required><br>
 
