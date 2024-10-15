@@ -28,8 +28,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $due_date = $meter_read_date_obj->format('Y-m-d');
 
     // Insert the data into water_calculations with the formatted month and due date
-    $sql = "INSERT INTO water_calculations (unit_number, water_rate, water_consumption, meter_read_date, calculation_month, water_bill, due_date)
-            VALUES ('$unit_number', '$water_rate', '$water_consumption', '$meter_read_date', '$formatted_month', '$water_bill', '$due_date')";
+    $sql = "INSERT INTO water_calculations (unit_number, water_rate, water_consumption, meter_read_date, calculation_month, water_bill, due_date, current_status)
+            VALUES ('$unit_number', '$water_rate', '$water_consumption', '$meter_read_date', '$formatted_month', '$water_bill', '$due_date', 'Unpaid')";
 
     if ($conn->query($sql) === TRUE) {
         echo "Water bill calculated successfully!";
