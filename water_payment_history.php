@@ -16,7 +16,15 @@ if (isset($_GET['unit_number'])) {
     $result = $conn->query($sql);
 
     // Fetch water calculations for the unit (remaining unpaid months)
-    $calculation_sql = "SELECT * FROM water_calculations WHERE unit_number = '$unit_number' ORDER BY calculation_month DESC";
+    // Exclude already paid months
+    $calculation_sql = "
+        SELECT * FROM water_calculations 
+        WHERE unit_number = '$unit_number' 
+        AND calculation_month NOT IN (
+            SELECT month_of FROM water_payment_history WHERE unit_number = '$unit_number'
+        )
+        ORDER BY calculation_month DESC
+    ";
     $calculation_result = $conn->query($calculation_sql);
 }
 ?>
