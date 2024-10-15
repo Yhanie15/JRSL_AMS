@@ -50,7 +50,7 @@
                         </div>
                         <div class="input-group dual-input">
                             <input type="number" id="age" name="age" placeholder="Age" required>
-                            <input type="date" id="birth-date" name="birth_date" required>
+                            <input type="date" id="birth-date" name="birth_date" placeholder="Birth Date" required>
                         </div>
                         <div class="input-group">
                             <input type="text" id="address" name="address" placeholder="Address" required>
