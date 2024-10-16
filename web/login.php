@@ -1,3 +1,59 @@
+<?php
+session_start();
+require '../config.php'; // Adjusted path to config.php
+
+$error = '';
+
+if (isset($_POST['username']) && isset($_POST['password'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+
+    // Create a connection
+    $conn = new mysqli("localhost", "root", "", "apartment_management");
+
+    // Check connection
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error);
+    }
+
+    // Prepare and bind for tenant login using 'users' table
+    if ($stmt = $conn->prepare("SELECT id, password FROM users WHERE username = ?")) { // Using 'users' table
+        $stmt->bind_param("s", $username);
+
+        // Execute the statement
+        if ($stmt->execute()) {
+            // Bind result variables
+            $stmt->bind_result($id, $hashed_password);
+
+            // Fetch value
+            if ($stmt->fetch()) {
+                if (password_verify($password, $hashed_password)) {
+                    // Password is correct, set session for tenant
+                    $_SESSION['user_id'] = $id; // Changed to user_id for users table
+                    $_SESSION['username'] = $username; // Using the username field
+                    header("Location: ../web/user_dashboard.php"); // Redirect to user dashboard inside 'web' folder
+                    exit();
+                } else {
+                    // Incorrect password
+                    $error = "Invalid username or password.";
+                }
+            } else {
+                // Incorrect username
+                $error = "Invalid username or password.";
+            }
+        } else {
+            $error = "Execute failed: (" . $stmt->errno . ") " . $stmt->error;
+        }
+
+        $stmt->close();
+    } else {
+        $error = "Prepare failed: (" . $conn->errno . ") " . $conn->error;
+    }
+
+    $conn->close();
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,13 +96,10 @@
             <div class="login-right">
                 <div class="login-form">
                     <h2>Log In</h2>
-                    <form action="process_login.php" method="post">
-                         <div class="input-group">
-                            <input id="username" name="roomnumber" placeholder="Room Number" required>
-                        </div>
-
+                    <?php if (!empty($error)) { echo "<p class='error'>$error</p>"; } ?>
+                    <form action="" method="post">
                         <div class="input-group">
-                            <input type="email" id="username" name="username" placeholder="Username/Email" required>
+                            <input type="text" id="username" name="username" placeholder="Username/Email" required>
                         </div>
 
                         <div class="input-group">
