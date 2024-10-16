@@ -23,6 +23,90 @@ $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="JRSLCSS/view_tenants.css"> <!-- Make sure styles.css is updated to include nav styles -->
+
+    <!-- Cool Search Bar Styling -->
+    <style>
+        .button-container {
+            display: flex;
+            justify-content: space-between; /* Aligns buttons to the ends */
+            align-items: center; /* Aligns vertically */
+            margin-bottom: 20px; /* Space between buttons and table */
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center; /* Ensures the label and input are aligned vertically */
+            margin-left: 20px; /* Add some space to the left of the search bar */
+            margin-top: 20px; /* Add space above the search bar to lower it */
+        }
+
+        .search-bar label {
+            font-size: 18px;
+            color: #333;
+            margin-right: 10px; /* Reduced space between label and input */
+        }
+
+        .search-bar input {
+            padding: 10px;
+            width: 250px; /* Adjust width if needed */
+            border: 2px solid #ccc;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s ease;
+            margin-bottom: 0; /* Ensure there's no margin at the bottom */
+        }
+
+        .search-bar input:focus {
+            border-color: #007bff;
+        }
+
+        /* Cool Button Style */
+        .button.add-button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .button.add-button:hover {
+            background-color: #218838;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+    </style>
 </head>
 <body>
 
@@ -32,11 +116,20 @@ $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="main-content">
         <h2>View Tenants</h2>
 
-        <!-- Add Tenant button -->
-        <a href="add_tenant.php" class="button add-button">Add Tenant</a>
+        <!-- Button and Search Bar Container -->
+        <div class="button-container">
+            <!-- Add Tenant button -->
+            <a href="add_tenant.php" class="button add-button">Add Tenant</a>
+
+            <!-- Search Bar -->
+            <div class="search-bar">
+                
+                <input type="text" id="tenantSearch" onkeyup="searchTenants()" placeholder="Search by name or unit number">
+            </div>
+        </div>
 
         <!-- Tenant list table -->
-        <table>
+        <table id="tenantTable">
             <thead>
                 <tr>
                     <th>#</th>
@@ -63,5 +156,31 @@ $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </tbody>
         </table>
     </div>
+
+    <script>
+        function searchTenants() {
+            // Get the value from the search input
+            var input = document.getElementById('tenantSearch').value.toLowerCase();
+            // Get all rows in the tenant table body
+            var table = document.getElementById('tenantTable');
+            var rows = table.getElementsByTagName('tr');
+            
+            // Loop through all table rows and hide those that don't match the query
+            for (var i = 1; i < rows.length; i++) { // Start from 1 to skip the table header
+                var lastName = rows[i].getElementsByTagName('td')[1].textContent.toLowerCase();
+                var firstName = rows[i].getElementsByTagName('td')[2].textContent.toLowerCase();
+                var middleName = rows[i].getElementsByTagName('td')[3].textContent.toLowerCase();
+                var unitNumber = rows[i].getElementsByTagName('td')[4].textContent.toLowerCase();
+
+                // Check if the search query matches any column (last name, first name, middle name, or unit number)
+                if (lastName.includes(input) || firstName.includes(input) || middleName.includes(input) || unitNumber.includes(input)) {
+                    rows[i].style.display = '';
+                } else {
+                    rows[i].style.display = 'none';
+                }
+            }
+        }
+    </script>
+
 </body>
 </html>
