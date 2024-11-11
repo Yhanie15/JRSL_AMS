@@ -1,17 +1,13 @@
 <?php
 session_start();
-
-// Check if the user is logged in, if not redirect to login page
 if (!isset($_SESSION['username'])) {
-    header("Location: login/login.php");
+    header("Location: login.php");
     exit();
 }
 
-include 'db.php'; // Include db.php to get $pdo connection
-
-// Fetch tenants data with selected columns only
-$stmt = $pdo->query("SELECT id, last_name, first_name, middle_name, unit_number FROM tenants");
-$tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
+include 'db.php';
+$stmt = $pdo->query("SELECT unit_number, last_name, first_name, middle_name FROM tenant_account");
+$users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -25,38 +21,31 @@ $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="JRSLCSS/view_tenants.css"> <!-- Make sure styles.css is updated to include nav styles -->
 </head>
 <body>
-
     <?php include 'sidebar.php'; ?>
 
-    <!-- Page content -->
     <div class="main-content">
-        <h2>View Tenants</h2>
-
-        <!-- Add Tenant button -->
-        <a href="add_tenant.php" class="button add-button">Add Tenant</a>
-
-        <!-- Tenant list table -->
+        <h2>View Users</h2>
         <table>
             <thead>
                 <tr>
                     <th>#</th>
+                    <th>Room Number</th>
                     <th>Last Name</th>
                     <th>First Name</th>
                     <th>Middle Name</th>
-                    <th>Unit Number</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($tenants as $index => $tenant): ?>
+                <?php foreach ($users as $index => $user): ?>
                     <tr>
                         <td><?php echo $index + 1; ?></td>
-                        <td><?php echo htmlspecialchars($tenant['last_name']); ?></td>
-                        <td><?php echo htmlspecialchars($tenant['first_name']); ?></td>
-                        <td><?php echo htmlspecialchars($tenant['middle_name']); ?></td>
-                        <td><?php echo htmlspecialchars($tenant['unit_number']); ?></td>
+                        <td><?php echo htmlspecialchars($user['unit_number']); ?></td>
+                        <td><?php echo htmlspecialchars($user['last_name']); ?></td>
+                        <td><?php echo htmlspecialchars($user['first_name']); ?></td>
+                        <td><?php echo htmlspecialchars($user['middle_name']); ?></td>
                         <td>
-                            <a href="view_tenant.php?id=<?php echo $tenant['id']; ?>" class="button">View</a>
+                            <a href="view_tenant.php?unit_number=<?php echo $user['unit_number']; ?>" class="button">View</a>
                         </td>
                     </tr>
                 <?php endforeach; ?>

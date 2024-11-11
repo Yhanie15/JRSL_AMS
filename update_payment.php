@@ -23,29 +23,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         VALUES ('$unit_number', '$month_in_word', '$amount_paid', '$payment_date')";
 
     if ($conn->query($insert_payment_sql) === TRUE) {
-        // Update current_status to 'Paid' if calculation_month matches the month_of in water_payment_history
-        $update_status_sql = "
-            UPDATE water_calculations 
-            SET current_status = 'Paid', last_payment_date = '$payment_date' 
-            WHERE unit_number = '$unit_number' 
-            AND calculation_month = '$month_in_word'";
+        
+        // Fetch all unpaid months and their total payments
+        $unpaid_months_sql = "
+            SELECT wc.calculation_month, wc.water_bill, IFNULL(SUM(wph.amount_paid), 0) AS total_paid
+            FROM water_calculations wc
+            LEFT JOIN water_payment_history wph 
+                ON wc.unit_number = wph.unit_number 
+                AND wc.calculation_month = wph.month_of
+            WHERE wc.unit_number = '$unit_number'
+            GROUP BY wc.calculation_month";
 
-        // Debugging: Output the SQL query
-        echo "Running query: $update_status_sql<br>";
+        $unpaid_months_result = $conn->query($unpaid_months_sql);
 
-        if ($conn->query($update_status_sql) === TRUE) {
-            // Check how many rows were affected
-            if ($conn->affected_rows > 0) {
-                echo "Status updated successfully to 'Paid'!<br>";
+        // Loop through all months and update statuses accordingly
+        while ($unpaid_month_row = $unpaid_months_result->fetch_assoc()) {
+            $calculation_month = $unpaid_month_row['calculation_month'];
+            $water_bill = $unpaid_month_row['water_bill'];
+            $total_paid = $unpaid_month_row['total_paid'];
+
+            // Calculate remaining balance for this month
+            $remaining_balance = $water_bill - $total_paid;
+
+            // Determine the current status for this month
+            if ($remaining_balance <= 0) {
+                // Update to 'Paid' if no remaining balance
+                $update_status_sql = "
+                    UPDATE water_calculations 
+                    SET current_status = 'Paid', last_payment_date = '$payment_date' 
+                    WHERE unit_number = '$unit_number' 
+                    AND calculation_month = '$calculation_month'";
             } else {
-                echo "No rows updated. Please check the unit number and calculation month: '$unit_number', '$month_in_word'.<br>";
+                // Update to 'Partial Pay' if there is remaining balance
+                $update_status_sql = "
+                    UPDATE water_calculations 
+                    SET current_status = 'Partial Pay', last_payment_date = '$payment_date' 
+                    WHERE unit_number = '$unit_number' 
+                    AND calculation_month = '$calculation_month'";
             }
-            // Redirect back to the payment history page after successful payment and update
-            header("Location: water_payment_history.php?unit_number=" . urlencode($unit_number));
-            exit();
-        } else {
-            echo "Error updating status: " . $conn->error;
+
+            // Execute the update query for each unpaid month
+            $conn->query($update_status_sql);
         }
+
+        // Redirect back to the payment history page after successful payment and update
+        header("Location: water_payment_history.php?unit_number=" . urlencode($unit_number));
+        exit();
     } else {
         echo "Error adding payment: " . $conn->error;
     }

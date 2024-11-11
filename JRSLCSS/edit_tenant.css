@@ -1,115 +1,151 @@
-   /* Reset some browser defaults */
-   body, html {
+/* Reset some browser defaults */
+body, html {
     margin: 0;
     padding: 0;
     font-family: Arial, sans-serif;
     overflow-x: hidden; /* Hide horizontal scrollbar */
 }
 
-/* Style for the fixed sidebar*/
-.sidebar {
-    height: 100%;
-    width: 250px;
-    position: fixed; /* Fixed position */
-    top: 0;
-    left: 0;
-    background-color: #111;
-    overflow-x: hidden; /* Hide horizontal scrollbar */
-    padding-top: 20px;
+/* Container Styling */
+.container {
+    max-width: 1200px; /* Limit the width of the container */
+    margin: 0 auto; /* Center the container */
+    padding: 20px;
 }
 
-
-.sidebar a {
-    padding: 10px 15px;
-    text-decoration: none;
-    font-size: 18px;
-    color: #818181;
-    display: block;
-}
-
-.sidebar a:hover {
-    color: #f1f1f1;
-}
-
-.sidebar .sidebar-header {
-    padding: 10px 15px;
-    text-align: center;
-    background: #111;
-    color: white;
-}
-
-/* Style for the main content area */
+/* Main Content Area */
 .main-content {
-    margin-left: 250px; /* Same width as the sidebar */
+    display: flex;
+    flex-direction: column; /* Allows responsive wrapping of items */
+    gap: 20px; /* Adds space between items */
+    background-color: #f4f4f4; /* Light background */
     padding: 20px;
-    padding-top: 20px; /* Adjust padding top to leave space for fixed sidebar */
-    overflow-y: auto; /* Enable vertical scrolling */
-    height: calc(100vh - 20px); /* Set height to fill viewport */
 }
 
+/* Form Container Styling */
+/* Form Container Styling */
 .form-container {
-    background-color: #f2f2f2;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+    background-color: #fff;
+    padding: 15px;  /* Reduced padding for a more compact feel */
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* Lighter shadow for a softer look */
+
+    max-width: 800px;  /* Reduced max-width for a smaller form box */
+    margin-top: 20px;
+    margin-left: auto;
+    margin-right: auto;  /* Centered horizontally */
 }
 
+
+/* Form Group Styling */
 .form-group {
     margin-bottom: 15px;
 }
 
+/* Form Labels */
 .form-group label {
     display: block;
     margin-bottom: 5px;
+    font-size: 18px;
+    color: #333;
 }
 
-.form-group input, .form-group select, .form-group textarea {
-    width: calc(100% - 16px); /* Adjust for padding */
-    padding: 8px;
+/* Input, Select, Textarea Styling */
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
     box-sizing: border-box;
-    margin-top: 5px; /* Adjust as needed */
+    font-size: 16px;
+    margin-top: 5px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+/* Submit Button Styling */
 .form-group input[type="submit"] {
-    background-color: #4CAF50; /* Green */
+    background-color: #4CAF50;
     color: white;
     border: none;
+    padding: 10px 20px;
+    font-size: 16px;
     cursor: pointer;
-    border-radius: 3px;
+    border-radius: 5px;
 }
 
 .form-group input[type="submit"]:hover {
-    background-color: #45a049;
+    background-color: #4CAF50; /* Darker red on hover */
 }
 
+/* General Button Styling */
 .button {
-    background-color: #4CAF50; /* Green */
+    background-color: #4CAF50;
     border: none;
     color: white;
     padding: 8px 16px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
     font-size: 14px;
-    margin-right: 5px;
+    border-radius: 5px;
     cursor: pointer;
-    border-radius: 3px;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .button:hover {
-    background-color: #45a049;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
+/* Back Button Styling */
 .back-button {
     margin-top: 20px;
     background-color: #ccc;
     padding: 8px 16px;
     text-decoration: none;
     color: #333;
-    border-radius: 3px;
+    border-radius: 5px;
+    display: inline-block;
+    font-size: 16px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .back-button:hover {
-    background-color: #999;
+    background-color: #bbb;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+    .form-container {
+        margin-left: 20px;
+    }
+
+    .main-content {
+        flex-direction: column;
+    }
+}
+
+/* Tenant Info Table Styling */
+.tenant-info-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.tenant-info-table th, .tenant-info-table td {
+    padding: 12px;
+    text-align: left;
+    border: 1px solid #ccc;
+}
+
+.tenant-info-table th {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.tenant-info-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.tenant-info-table tr:hover {
+    background-color: #f1f1f1;
 }

@@ -1,3 +1,45 @@
+<?php
+include '../db.php';
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $unit_number = $_POST['unit_number'];
+    $first_name = $_POST['first_name'];
+    $last_name = $_POST['last_name'];
+    $age = $_POST['age'];
+    $birth_date = $_POST['birth_date'];
+    $address = $_POST['address'];
+    $username = $_POST['username'];
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+
+    // Step 1: Get the capacity of the selected unit from the rooms table
+    $stmt = $pdo->prepare("SELECT capacity FROM rooms WHERE unit_number = ?");
+    $stmt->execute([$unit_number]);
+    $room = $stmt->fetch();
+
+    if (!$room) {
+        echo "<script>alert('Invalid unit number.');</script>";
+    } else {
+        // Step 2: Check if the number of tenants already in the unit has reached its capacity
+        $capacity = $room['capacity'];
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM tenant_account WHERE unit_number = ?");
+        $stmt->execute([$unit_number]);
+        $tenantCount = $stmt->fetchColumn();
+
+        if ($tenantCount >= $capacity) {
+            echo "<script>alert('Unit number is already at full capacity.');</script>";
+        } else {
+            // Step 3: Proceed with the signup if capacity is not yet reached
+            $stmt = $pdo->prepare("INSERT INTO tenant_account (unit_number, first_name, last_name, age, birth_date, address, username, password) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            if ($stmt->execute([$unit_number, $first_name, $last_name, $age, $birth_date, $address, $username, $password])) {
+                echo "<script>alert('Sign up successful!'); window.location.href='login.php';</script>";
+            } else {
+                echo "<script>alert('Error: Could not sign up.');</script>";
+            }
+        }
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,13 +77,12 @@
             <div class="signup-left">
                 <img src="img/bg.jpg" alt="Background Image">
             </div>
-        
 
             <!-- Right side with signup form -->
             <div class="signup-right">
                 <div class="signup-form">
                     <h2>Sign Up</h2>
-                    <form action="process_signup.php" method="post">
+                    <form method="post">
                         <div class="input-group">
                             <input type="text" id="first-name" name="first_name" placeholder="First Name" required>
                         </div>
@@ -59,7 +100,7 @@
                             <input type="email" id="username" name="username" placeholder="Username/Email" required>
                         </div>
                         <div class="input-group">
-                            <input type="email" id="confirm-username" name="confirm_username" placeholder="Confirm Username/Email" required>
+                            <input type="number" id="unit-number" name="unit_number" placeholder="Enter Unit Number" required>
                         </div>
                         <div class="input-group">
                             <input type="password" id="password" name="password" placeholder="Password" required>
