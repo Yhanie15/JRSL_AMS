@@ -43,7 +43,9 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <label for="roomFilter">Filter by Room Type:</label>
             <select id="roomFilter" onchange="filterRooms()">
                 <option value="all">All Rooms</option>
+                <option value="solo">Solo Room</option>
                 <option value="small">Small Room</option>
+                <option value="medium">Medium Room</option> <!-- Added Medium Room -->
                 <option value="large">Large Room</option>
                 <!-- Add more room types here if needed -->
             </select>
@@ -78,6 +80,8 @@ $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 if (filter === 'all') {
                     rooms[i].style.display = 'block';
                 } else if (filter === 'small' && roomType.toLowerCase().includes('small')) {
+                    rooms[i].style.display = 'block';
+                } else if (filter === 'medium' && roomType.toLowerCase().includes('medium')) { // Added condition for Medium Room
                     rooms[i].style.display = 'block';
                 } else if (filter === 'large' && roomType.toLowerCase().includes('large')) {
                     rooms[i].style.display = 'block';

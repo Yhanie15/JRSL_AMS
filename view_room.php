@@ -35,7 +35,7 @@ $stmt_tenants->execute([$room['unit_number']]);
 $tenants = $stmt_tenants->fetchAll(PDO::FETCH_ASSOC);
 
 // Sample room types (you can replace this with a database fetch if necessary)
-$room_types = ['Single', 'Double', 'Suite', 'Deluxe', 'Studio', 'Shared', 'Penthouse']; // Add more types as needed
+$room_types = ['Solo Room', 'Small Room', 'Medium Room', 'Large Room']; // Add more types as needed
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {

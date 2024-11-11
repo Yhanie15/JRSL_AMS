@@ -53,6 +53,7 @@ $units_result = $conn->query($sql);
                 while ($unit = $units_result->fetch_assoc()) {
                     $unit_number = $unit['unit_number'];
 
+                    // Get the latest water calculation details
                     $payment_sql = "
                         SELECT * 
                         FROM water_calculations 
@@ -74,6 +75,7 @@ $units_result = $conn->query($sql);
                         $last_payment_date = 'N/A';
                     }
 
+                    // Calculate balance for unpaid bills
                     $balance_sql = "
                         SELECT SUM(water_bill) AS balance 
                         FROM water_calculations 
@@ -82,6 +84,11 @@ $units_result = $conn->query($sql);
                     $balance_result = $conn->query($balance_sql);
                     $balance_row = $balance_result->fetch_assoc();
                     $balance = $balance_row['balance'] ? number_format($balance_row['balance'], 2) : 'N/A';
+
+                    // Override current status to "Unpaid" if there's a balance
+                    if ($balance_row['balance'] > 0) {
+                        $current_status = 'Unpaid';
+                    }
                     ?>
                     <tr>
                         <td><?php echo htmlspecialchars($unit_number); ?></td>

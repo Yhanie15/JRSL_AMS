@@ -1,143 +1,119 @@
-/* General Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    
 }
 
-/* Body Styling */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f5f9fc; /* Light blue background */
-    color: #333;
+table, th, td {
+    border: 1px solid #ddd;
+    
+    
 }
 
-/* Sidebar */
-.sidebar {
-    width: 250px;
-    background-color: #4682B4; /* Light blue */
-    padding: 20px;
-    color: white;
-    position: fixed;
-    height: 100%;
-    top: 0;
-    left: 0;
+th, td {
+    padding: 10px;
+    text-align: center;
+    background-color: #f4f4f4;
+    
 }
 
-.main-content {
-    margin-left: 260px;
-    padding: 20px;
-}
-
-/* Header */
 .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
-    background-color: #1E90FF; /* Light Blue */
-    padding: 15px;
-    color: white;
-    border-radius: 10px;
-}
-
-.header h2 {
-    font-size: 24px;
+    padding-bottom: 10px;
 }
 
 .search-bar input {
     padding: 10px;
-    font-size: 14px;
+    border: none;
     border-radius: 5px;
-    border: 1px solid #ccc;
 }
 
-/* Filter Section */
 .filter-section {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
 }
 
 .filter-button {
-    background-color: #1E90FF;
-    color: white;
+    padding: 8px 12px;
+    background-color: #6c757d;
     border: none;
-    padding: 10px 20px;
+    color: white;
     border-radius: 5px;
     cursor: pointer;
 }
 
-.filter-button:hover {
-    background-color: #4682B4;
-}
-
-/* Table Styles */
-.payment-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-}
-
-.payment-table th, .payment-table td {
-    padding: 12px;
-    text-align: left;
-    font-size: 16px;
-}
-
-.payment-table th {
-    background-color: #4682B4; /* Light Blue */
+.button {
+    background-color: #4CAF50; /* Green */
+    border: none;
     color: white;
-}
-
-.payment-table tr:nth-child(even) {
-    background-color: #f1f8ff;
-}
-
-.payment-table tr:hover {
-    background-color: #e0f3fe;
-}
-
-.payment-table a.button {
-    display: inline-block;
-    padding: 8px 15px;
-    background-color: #1E90FF;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
+    padding: 8px 8px;
     text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin-right: 5px;
+    cursor: pointer;
+    border-radius: 3px;
 }
 
-.payment-table a.button p {
-    margin: 0;
+.button:hover {
+    background-color: #45a049;
+}
+/* Modal Styles */
+.modal {
+    display: none; 
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6); /* Darker overlay for focus */
+    overflow: auto; /* Enable scroll if content is too long */
 }
 
-.payment-table a.button:hover {
-    background-color: #4682B4;
+/* Modal Content */
+.modal-content {
+    background: linear-gradient(145deg, #ffffff, #f0f0f0); /* Subtle gradient background */
+    margin: 80px auto;
+    padding: 30px 40px;
+    border-radius: 15px;
+    width: 450px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Enhanced shadow */
+    position: relative;
+    max-width: 95%; /* Ensures it's responsive on smaller screens */
+    animation: slide-down 0.5s ease-out; /* Smooth entry animation */
 }
 
-/* Table Data */
-.payment-table td {
-    color: #555;
-}
 
-.payment-table td a {
+/* Buttons */
+.green-button {
+    background-color: #28a745;
     color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
 }
 
-/* Responsive Design */
-@media screen and (max-width: 768px) {
-    .main-content {
-        margin-left: 0;
-        padding: 15px;
-    }
+.green-button:hover {
+    background-color: #218838;
+}
 
-    .header h2 {
-        font-size: 20px;
-    }
+.back-button {
+    margin-top: 10px;
+    background-color: #dc3545;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
 
-    .payment-table th, .payment-table td {
-        font-size: 14px;
-    }
+.back-button:hover {
+    background-color: #c82333;
 }

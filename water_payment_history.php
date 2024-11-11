@@ -7,66 +7,26 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// Check if a specific unit number is passed
 if (isset($_GET['unit_number'])) {
     $unit_number = $_GET['unit_number'];
 
-    // Fetch payment history
+    // Fetch payment history for the unit
     $sql = "SELECT * FROM water_payment_history WHERE unit_number = '$unit_number' ORDER BY payment_date DESC";
     $result = $conn->query($sql);
 
-    // Fetch remaining unpaid water bills
+    // Fetch water calculations for the unit (remaining unpaid months)
+    // Exclude already paid months
     $calculation_sql = "
         SELECT * FROM water_calculations 
         WHERE unit_number = '$unit_number' 
-        AND current_status = 'Unpaid'
-        ORDER BY calculation_month DESC";
+        AND calculation_month NOT IN (
+            SELECT month_of FROM water_payment_history WHERE unit_number = '$unit_number'
+        )
+        ORDER BY calculation_month DESC
+    ";
     $calculation_result = $conn->query($calculation_sql);
 }
-
-// Handle payment form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pay_amount'])) {
-    $amount_paid = $_POST['pay_amount'];
-    $month_of = $_POST['month_of']; // Get the month the payment is for
-
-    // Update the payment history table
-    $insert_payment_sql = "INSERT INTO water_payment_history (unit_number, amount_paid, month_of) 
-                           VALUES ('$unit_number', '$amount_paid', '$month_of')";
-    if ($conn->query($insert_payment_sql) === TRUE) {
-        // Mark the water bill as paid in the water_calculations table
-        $update_status_sql = "UPDATE water_calculations 
-                              SET current_status = 'Paid', last_payment_date = NOW() 
-                              WHERE unit_number = '$unit_number' 
-                              AND calculation_month = '$month_of' 
-                              AND current_status = 'Unpaid'";
-        $conn->query($update_status_sql);
-        header("Location: water_payment_history.php?unit_number=$unit_number"); // Refresh the page after payment
-        exit();
-    } else {
-        echo "Error: " . $conn->error;
-    }
-}
-
-// Handle adding a new water bill for the current month
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['water_rate'])) {
-    $water_rate = $_POST['water_rate'];
-    $water_consumption = $_POST['water_consumption'];
-    $unit_number = $_POST['unit_number'];
-    $calculation_month = date('Y-m'); // Get the current month as the calculation month
-    $meter_read_date = $_POST['meter_read_date'];
-
-    // Calculate the water bill
-    $water_bill = $water_rate * $water_consumption;
-
-    // Insert the new water bill entry
-    $insert_bill_sql = "INSERT INTO water_calculations (unit_number, water_rate, water_consumption, water_bill, calculation_month, meter_read_date, current_status)
-                        VALUES ('$unit_number', '$water_rate', '$water_consumption', '$water_bill', '$calculation_month', '$meter_read_date', 'Unpaid')";
-    if ($conn->query($insert_bill_sql) === TRUE) {
-        echo "New water bill added for $unit_number for the month $calculation_month.";
-    } else {
-        echo "Error: " . $conn->error;
-    }
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -75,19 +35,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['water_rate'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Water Payment History</title>
-    <link rel="stylesheet" href="JRSLCSS/water_payment_history.css">
-    <script>
-    // Function to open the modal when the button is clicked
-    function openModal() {
-        document.getElementById("addPaymentModal").style.display = "flex";
-    }
-
-    // Function to close the modal
-    function closeModal() {
-        document.getElementById("addPaymentModal").style.display = "none";
-    }
-</script>
-
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="JRSLCSS/water_result.css"> 
+    <link rel="stylesheet" href="JRSLCSS/bills_payment.css">
 </head>
 <body>
 <?php include 'sidebar.php'; ?>
@@ -95,25 +45,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['water_rate'])) {
         <a href="water_payment.php" class="back-link"><i class="fas fa-arrow-left"></i> Back to Water Payment Page</a>
         <h2>Payment History for Unit <?php echo htmlspecialchars($unit_number); ?></h2>
 
-        <!-- Button to open modal -->
-        <button class="button" onclick="openModal()">Add Water Bill for This Month</button>
-
-        <!-- Modal for adding new water bill -->
-        <div id="addPaymentModal" class="modal-overlay">
-            <div class="modal-content">
-                <span class="close-btn" onclick="closeModal()">&times;</span>
-                <h3>Add Water Bill</h3>
-                <form action="water_payment_history.php?unit_number=<?php echo urlencode($unit_number); ?>" method="POST">
-                    <label for="water_rate">Water Rate (PHP):</label>
-                    <input type="number" name="water_rate" required min="0" step="0.01">
-                    <label for="water_consumption">Water Consumption (Cubic Meters):</label>
-                    <input type="number" name="water_consumption" required min="0" step="0.01">
-                    <label for="meter_read_date">Meter Read Date:</label>
-                    <input type="date" name="meter_read_date" required>
-                    <input type="hidden" name="unit_number" value="<?php echo htmlspecialchars($unit_number); ?>">
-                    <button type="submit" class="button">Add Bill</button>
-                </form>
-            </div>
+        <div class="search-section">
+            <input type="text" placeholder="Quick Search" id="searchRentDetails">
+            <button onclick="openModal('computeModal')" class="back-button">+ Compute Bills</button>
+            <button onclick="openModal('updateModal')" class="back-button">+ Add Payment</button>
         </div>
 
         <h3>Remaining Water Bill Calculations</h3>
@@ -122,11 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['water_rate'])) {
                 <thead>
                     <tr>
                         <th>Calculation Month</th>
-                        <th>Water Rate</th>
-                        <th>Water Consumption</th>
-                        <th>Water Bill</th>
+                        <th>Water Rate (PHP per gallon)</th>
+                        <th>Water Consumption (gallons)</th>
+                        <th>Water Bill (PHP)</th>
                         <th>Meter Read Date</th>
-                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -137,25 +71,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['water_rate'])) {
                             <td><?php echo htmlspecialchars($calculation_row['water_consumption']); ?></td>
                             <td>PHP <?php echo number_format($calculation_row['water_bill'], 2); ?></td>
                             <td><?php echo htmlspecialchars($calculation_row['meter_read_date']); ?></td>
-                            <td>
-                                <?php if ($calculation_row['current_status'] === 'Unpaid'): ?>
-                                    <!-- Payment form for unpaid bills -->
-                                    <form action="water_payment_history.php?unit_number=<?php echo urlencode($unit_number); ?>" method="POST">
-                                        <input type="hidden" name="month_of" value="<?php echo $calculation_row['calculation_month']; ?>">
-                                        <input type="number" name="pay_amount" min="0" max="<?php echo $calculation_row['water_bill']; ?>" step="0.01" required>
-                                        <button type="submit" class="button">Pay</button>
-                                    </form>
-                                <?php else: ?>
-                                    <p>Paid</p>
-                                <?php endif; ?>
-                            </td>
                         </tr>
                     <?php endwhile; ?>
                 </tbody>
             </table>
         <?php else: ?>
             <p>No water bill calculations available for Unit <?php echo htmlspecialchars($unit_number); ?>.</p>
-        <?php endif; ?>
+        <?php endif; ?> 
 
         <h3>Payment History</h3>
         <?php if ($result && $result->num_rows > 0): ?>
@@ -164,25 +86,87 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['water_rate'])) {
                     <tr>
                         <th>#</th>
                         <th>Date Time Added</th>
+                        <th>Month Of</th>
                         <th>Amount Paid</th>
-                        <th>Month</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($payment_row = $result->fetch_assoc()): ?>
+                    <?php 
+                    $counter = 1;
+                    while ($row = $result->fetch_assoc()): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($payment_row['id']); ?></td>
-                            <td><?php echo htmlspecialchars($payment_row['payment_date']); ?></td>
-                            <td>PHP <?php echo number_format($payment_row['amount_paid'], 2); ?></td>
-                            <td><?php echo htmlspecialchars($payment_row['month_of']); ?></td>
+                            <td><?php echo $counter++; ?></td>
+                            <td><?php echo htmlspecialchars($row['payment_date']); ?></td>
+                            <td><?php echo htmlspecialchars($row['month_of']); ?></td>
+                            <td>PHP <?php echo number_format($row['amount_paid'], 2); ?></td>
                         </tr>
                     <?php endwhile; ?>
                 </tbody>
             </table>
         <?php else: ?>
             <p>No payment history available for Unit <?php echo htmlspecialchars($unit_number); ?>.</p>
-        <?php endif; ?>
+        <?php endif; ?> 
     </div>
+
+    <!-- Modal for Calculating Water Bill -->
+<div class="compute_modal" id="computeModal">
+    <div class="modal-content">
+        <h3>Calculate Water for Room <?php echo htmlspecialchars($unit_number); ?></h3>
+        <form method="POST" action="compute_water.php">
+            <label>Unit Number:</label>
+            <input type="text" name="unit_number" value="<?php echo htmlspecialchars($unit_number); ?>" required><br>
+
+            <label>Water Rate (PHP per gallon):</label>
+            <input type="text" name="water_rate" required><br>
+
+            <label>Water Consumption (gallons):</label>
+            <input type="text" name="water_consumption" required><br>
+
+            <label>Meter Read Date:</label>
+            <input type="date" name="meter_read_date" required><br>
+
+            <!-- Add month picker for Calculation Month -->
+            <label>Calculation Month:</label>
+            <input type="month" name="calculation_month" required><br>
+
+            <button type="submit" class="green-button">Calculate</button>
+        </form>
+        <button class="back-button" onclick="closeModal('computeModal')">Back to Water</button>
+    </div>
+</div>
+
+    <!-- Modal for Updating Payment -->
+    <div class="payment_modal" id="updateModal">
+        <div class="modal-content">
+            <h3>Update Water Payment for <?php echo htmlspecialchars($unit_number); ?></h3>
+            <form method="POST" action="update_payment.php?unit_number=<?php echo urlencode($unit_number); ?>">
+                <label for="month">Month of:</label>
+                <input type="month" name="month" required><br>
+
+                <label>Amount:</label>
+                <input type="text" name="amount_paid" required><br>
+
+                <label>Payment Date:</label>
+                <input type="date" name="payment_date" required><br>
+
+                <button type="submit" class="green-button">Submit Payment</button>
+            </form>
+            <button class="back-button" onclick="closeModal('updateModal')">Back to Water</button>
+        </div>
+    </div>
+
+    <script>
+        // Open modal function
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = "flex";
+        }
+
+        // Close modal function
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = "none";
+        }
+    </script>
+
 </body>
 </html>
 
